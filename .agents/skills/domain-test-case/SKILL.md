@@ -74,7 +74,11 @@ Nếu EC là ký tự đặc biệt/không hợp lệ về định dạng → li
 [DỪNG LẠI CHỜ XÁC NHẬN]
 ## Step 4 — Test Case Report (Domain Testing)
 
-Mỗi tính năng tạo từ 8-12 test cases. Chọn tập test case tối thiểu:
+KHÔNG có giới hạn số lượng test case. Số lượng test case PHẢI bằng đúng 
+số equivalence class hợp lệ tìm được — không được gộp nhiều class vào 
+1 test case, không được bỏ sót class nào, và không được tự ý dừng sớm 
+vì lý do "đã đủ" hay "để tránh dài".
+
 
 Valid EC: gộp nhiều EC valid vào 1 test case cho tới khi tất cả valid EC được cover.
 Invalid EC: mỗi test case chỉ cover đúng 1 invalid EC.
