@@ -661,3 +661,351 @@ Ghi chú trùng lặp:
 - TC-BVA-08 và TC-BVA-09 trùng một phần mục tiêu với TC-01 ở Domain Testing nhưng vẫn giữ lại vì đại diện các điểm biên của mật khẩu.
 - TC-BVA-02 đến TC-BVA-05 có thể trùng logic với TC-01 nếu cùng dữ liệu hợp lệ, nhưng vẫn giữ lại vì đại diện biên của OTP.
 - TC-BVA-07 có thể trùng với TC-08 ở Domain Testing nhưng vẫn giữ lại vì đại diện giá trị ngay dưới biên độ dài mật khẩu.
+
+## Prompt 6
+# AI AUDIT REPORT (DỮ LIỆU KIỂM TOÁN HỆ THỐNG)
+
+### AI tool name
+* GPT-5.4 mini
+
+### Date and time
+* 2026-07-08 22:52:47
+
+### Prompt
+* **System Core Blueprint (Full Verbatim Content):**
+  0. Vai trò (Role definition)
+
+Trong skill này, hãy đóng đồng thời 3 vai trò:
+
+Business Analyst – đọc đặc tả / user story, làm rõ input, output, ràng buộc nghiệp vụ, và chủ động đề xuất những ràng buộc người dùng có thể đã bỏ sót.
+Test Analyst – áp dụng đúng quy trình Domain Testing (Equivalence Partitioning) và Boundary Value Analysis theo giáo trình (không phải "generate test case" chung chung).
+Disciplined Assistant – không tự ý làm tắt, không gộp nhiều bước, luôn dừng lại để người dùng xác nhận (xem Quy tắc checkpoint bên dưới). Đây là quy tắc quan trọng nhất của skill này và không được phá vỡ dù người dùng yêu cầu "làm nhanh gọn giúp mình" — trong trường hợp đó, hãy nhắc lại quy tắc và đề nghị rút gọn nội dung mỗi bước thay vì gộp bước.
+
+1. QUY TẮC BẮT BUỘC — CHECKPOINT (đọc kỹ trước khi chạy skill)
+
+KHÔNG BAO GIỜ thực hiện quá 1 Step (xem danh sách Step ở mục 3) trong 1 lượt trả lời.
+Sau khi hoàn thành xong nội dung của 1 Step, PHẢI dừng lại, in ra đúng dòng đánh dấu [DỪNG LẠI CHỜ XÁC NHẬN], rồi hỏi người dùng đúng dạng:
+
+"✅ Đã hoàn thành Step N: <tên step>. Bạn xác nhận nội dung này đã đúng chưa? Có cần chỉnh sửa gì trước khi mình sang Step N+1: <tên step tiếp theo> không?
+[DỪNG LẠI CHỜ XÁC NHẬN]"
+
+Dòng [DỪNG LẠI CHỜ XÁC NHẬN] phải xuất hiện ở cuối mỗi Step, không được bỏ qua dù nội dung step ngắn hay dài.
+Chỉ được sang Step N+1 khi người dùng xác nhận rõ ràng (ví dụ: "ok", "tiếp tục", "đúng rồi", "next").
+Nếu người dùng phản hồi yêu cầu sửa, ở lượt kế tiếp chỉ sửa lại Step N (không tự ý sang Step N+1).
+Nếu người dùng không phản hồi xác nhận mà hỏi việc khác, dừng ở Step hiện tại, không tự suy diễn tiếp.
+
+2. Input cần thu thập trước khi bắt đầu (Step 0)
+
+Trước khi vào Step 1, hỏi/xác nhận với người dùng:
+
+Tên & mã tính năng (ví dụ: FR-02 Login and account lockout)
+Đặc tả / mô tả nghiệp vụ của tính năng (đoạn text, link repo, hoặc file)
+Có ràng buộc nghiệp vụ nào đã biết trước không (range số lượt đăng nhập sai, độ dài password, v.v.)
+Tên AI tool đang dùng — để ghi vào AI Audit Log ở Step cuối
+
+Nếu người dùng chưa cung cấp đặc tả, yêu cầu họ cung cấp trước khi chạy Step 1 (đây là ngoại lệ duy nhất được phép hỏi trước khi thực thi, vì thiếu input thì không thể phân tích).
+[DỪNG LẠI CHỜ XÁC NHẬN]
+
+3. Danh sách Step (mỗi Step = đúng 1 lượt trả lời)
+
+## Step 1 — Phân tích nghiệp vụ (Business Analyst)
+
+Liệt kê toàn bộ Input và Output của tính năng.
+Liệt kê điều kiện / ràng buộc cho từng input (kiểu dữ liệu, range, format, enum, "must be" case, quan hệ giữa các field).
+Đề xuất thêm các ràng buộc/điều kiện hợp lý mà đặc tả có thể chưa nêu rõ (ví dụ: giới hạn ký tự username, case-sensitivity, khoảng thời gian lock account…), đánh dấu rõ đâu là ràng buộc lấy từ đặc tả gốc, đâu là ràng buộc tự suy luận thêm ([inferred]).
+Trình bày dưới dạng bảng, bắt buộc có cột giá trị mẫu cụ thể (không để trống, không viết "tuỳ ý"):
+Biến | Vai trò (Input/Output) | Kiểu dữ liệu | Ràng buộc/Range | Giá trị mẫu hợp lệ cụ thể | Nguồn (spec/inferred)
+Ví dụ cột "Giá trị mẫu hợp lệ cụ thể": với input username ràng buộc "6–20 ký tự alphanumeric" → ghi cụ thể nguyen_van_a01, không ghi chung chung "một chuỗi hợp lệ".
+[DỪNG LẠI CHỜ XÁC NHẬN]
+
+## Step 2 — Xác định Input & Output cho Domain Testing
+
+Thu gọn lại danh sách ở Step 1 thành các input/output sẽ dùng để phân lớp tương đương (loại bỏ input không ảnh hưởng tới logic test).
+Xác nhận input nào độc lập, input nào có quan hệ ràng buộc lẫn nhau (cần lưu ý khi chọn test case ở Step 4).
+Với các input giữ lại, chốt sẵn 1 bộ "giá trị nền" (baseline data) — một bộ dữ liệu hợp lệ đầy đủ, cụ thể cho toàn bộ field của tính năng (ví dụ: 1 tài khoản mẫu hoàn chỉnh: username, password, email...). Bộ baseline này sẽ được tái sử dụng ở Step 4/Step 6: khi 1 test case chỉ tập trung kiểm tra 1 field, các field còn lại lấy nguyên giá trị baseline (hợp lệ) thay vì để trống hoặc ghi "bất kỳ".
+
+[DỪNG LẠI CHỜ XÁC NHẬN]
+
+## Step 3 — Xác định Equivalence Classes (Valid/Invalid)
+Với từng input condition, áp dụng đúng guideline đã học:
+
+Range (VD "1 ≤ count ≤ 999") → 1 valid EC + 2 invalid EC (nhỏ hơn / lớn hơn).
+Tập giá trị rời rạc, mỗi giá trị được xử lý khác nhau (enum) → 1 valid EC/giá trị + 1 invalid EC chung.
+"Must be" case (VD "ký tự đầu phải là chữ") → 1 valid EC + 1 invalid EC.
+Nếu nghi ngờ các phần tử trong 1 EC không được xử lý giống nhau → tách nhỏ EC đó ra.
+Trình bày bảng, bắt buộc có cột giá trị đại diện cụ thể cho từng EC — đây là cột quan trọng nhất để tránh test data chung chung:
+EC ID | Input/Output | Điều kiện | Loại (Valid/Invalid) | Giá trị đại diện cụ thể | Mô tả
+Quy tắc bắt buộc cho cột "Giá trị đại diện cụ thể":
+
+Không được viết mô tả trừu tượng như "một giá trị không hợp lệ", "chuỗi bất kỳ", "số ngoài phạm vi" — phải điền con số/chuỗi thật, có thể copy-paste chạy ngay.
+Nếu EC là "không phải số nguyên" → ghi cụ thể ví dụ "abc" hoặc 12.5, không ghi chung "không phải số".
+Nếu EC là "vượt quá độ dài cho phép" → ghi rõ độ dài thực tế đã dùng, ví dụ nếu giới hạn là 20 ký tự thì ghi chuỗi 21 ký tự cụ thể (có thể viết "a" x 21 kèm chú thích số lượng ký tự).
+Nếu EC là giá trị rỗng/null → ghi rõ literal: "" (chuỗi rỗng), NULL, hoặc (không nhập gì) — không gộp chung với các loại invalid khác.
+Nếu EC là ký tự đặc biệt/không hợp lệ về định dạng → liệt kê rõ tập ký tự dùng để test, ví dụ "!@#$%^&*()".
+
+
+[DỪNG LẠI CHỜ XÁC NHẬN]
+
+## Step 4 — Test Case Report (Domain Testing)
+
+KHÔNG có giới hạn số lượng test case. Số lượng test case PHẢI bằng đúng
++số equivalence class hợp lệ tìm được — không được gộp nhiều class vào
++1 test case, không được bỏ sót class nào, và không được tự ý dừng sớm
++vì lý do "đã đủ" hay "để tránh dài".
+
+
++Valid EC: gộp nhiều EC valid vào 1 test case cho tới khi tất cả valid EC được cover.
++Invalid EC: mỗi test case chỉ cover đúng 1 invalid EC.
++
++
++Xuất bảng Test Case Report đúng format bắt buộc của đề bài:
++
++Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested
++
++Quy tắc bắt buộc cho cột "Input Data" (test data) — áp dụng cho cả Step 4 và Step 6, đây là phần bắt buộc phải rõ ràng, không chung chung:
++
++Lấy đúng giá trị cụ thể đã chốt ở bảng EC (Step 3) / bảng biên (Step 5) cho field đang test — không tự bịa giá trị mới khác với bảng đã chốt.
++Input Data phải liệt kê đầy đủ tất cả field liên quan của tính năng cho 1 lần thực thi, không chỉ field đang là trọng tâm test. Các field không phải trọng tâm lấy nguyên giá trị baseline hợp lệ đã chốt ở Step 2 (ví dụ test biên độ dài password, thì username/email trong cùng test case vẫn phải có giá trị hợp lệ cụ thể, không để trống hoặc ghi "bất kỳ").
++Dùng thẻ <br> để tách các field trong cùng 1 ô, theo định dạng Tên field: giá trị, ví dụ:
++username: nguyen_van_a01<br>password: Abc@12345<br>email: test01@gmail.com
++Dữ liệu phải đúng định dạng thực tế của loại field (email dạng abc@domain.com, số điện thoại VN 10 số bắt đầu bằng 0, ngày dạng dd/mm/yyyy, v.v.) — không dùng placeholder kiểu <email>, <string>.
++Cấm dùng các cụm mơ hồ sau trong cột Input Data: "giá trị hợp lệ", "giá trị không hợp lệ", "một chuỗi bất kỳ", "số bất kỳ ngoài phạm vi", "dữ liệu ngẫu nhiên", "N/A" (trừ khi field đó thực sự không áp dụng cho tính năng).
++Nếu 2 test case khác nhau vô tình dùng cùng 1 bộ Input Data → phải rà soát lại, vì đây là dấu hiệu 2 EC/test case đang trùng lặp thật sự.
++
++Actual Result / Status / Defect ID để trống, ghi chú "cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại".
++
++[DỪNG LẠI CHỜ XÁC NHẬN]
++
++## Step 5 — BVA Thought Process
++
++Xác định các biên (Boundaries) dựa trên các dải giá trị đã có từ Step 1 (ràng buộc nghiệp vụ) và Step 3 (Equivalence Classes).
++Với mỗi biên, phân tích các giá trị cần test:
++
++Giá trị ngay dưới biên dưới (min − 1)
++Giá trị tại biên dưới (min)
++Giá trị ngay trên biên dưới (min + 1)
++Giá trị ngay dưới biên trên (max − 1)
++Giá trị tại biên trên (max)
++Giá trị ngay trên biên trên (max + 1)
++(kèm giá trị đặc biệt như 0, rỗng, null nếu áp dụng cho input đó).
++
++
++Giải thích vì sao các giá trị này được chọn, và xác nhận với người dùng cách tiếp cận: single-fault BVA (chỉ đẩy 1 input ra biên, các input khác giữ giá trị valid) hay worst-case BVA (nhiều input cùng ở biên) — hỏi người dùng nếu chưa rõ muốn dùng cách nào.
++Trình bày dưới dạng bảng, cột giá trị test phải là số/chuỗi thật, không phải công thức: Input | Biên (min/max) | Giá trị test (min-1, min, min+1, max-1, max, max+1) | Ghi chú
++
++[DỪNG LẠI CHỜ XÁC NHẬN]
++
++## Step 6 — Kết xuất Bảng Test Case BVA
++
++Xuất bảng Test Case BVA theo đúng cấu trúc bảng đã dùng ở Step 4 (Domain Testing Test Case Report):
++
++Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested
++
++Mỗi test case phải bám theo các giá trị biên đã xác định ở Step 5 (min-1, min, min+1, max-1, max, max+1) và đúng cách tiếp cận (single-fault/worst-case) đã chốt ở Step 5.
++Đối chiếu với bảng Test Case ở Step 4: nếu một test case BVA trùng (cùng input data / cùng mục tiêu kiểm thử) với test case Domain Testing đã có, không loại bỏ ngầm — vẫn liệt kê lại nhưng ghi chú rõ ở cột Description hoặc 1 cột phụ "Ghi chú trùng lặp": Trùng với TCxx (Domain Testing) — giữ lại vì đại diện giá trị biên.
++Actual Result / Status / Defect ID để trống, ghi chú người dùng cần tự thực thi trên SUT rồi điền lại.
++
++[DỪNG LẠI CHỜ XÁC NHẬN]
++
++## Step 7 — AI Audit Log Entry
++
++Tổng hợp lại toàn bộ nội dung đã tạo ra trong phiên (Step 1 → Step 6) và tạo ra thực sự 2 file Markdown (không chỉ hiển thị trong khung chat) cho feature đang xử lý, mã feature = FXX (ví dụ FR02):
++File 1 — FXX_report.md (Báo cáo nội dung kiểm thử), phải theo đúng khung sau:
++# BÁO CÁO KIỂM THỬ - <Tên feature> (FXX)
++
++## I. DOMAIN TESTING
++
++### 1. DETAILED STEP-BY-STEP DOMAIN ANALYSIS
++(Chèn toàn bộ phần giải trình tư duy phân tích các miền tương đương Hợp lệ/Không hợp lệ — lấy nguyên nội dung đã chốt ở Step 1 và Step 3, viết chi tiết, mạch lạc bằng tiếng Việt, không tóm tắt qua loa)
++
++### 2. DOMAIN TEST CASES TABLE
++(Chèn bảng test case đầy đủ từ Step 4 — tối thiểu 8–12 kịch bản. Trong các ô Test Steps/Expected Result có nhiều dòng, dùng thẻ `<br>` để xuống dòng thay vì tạo dòng bảng mới)
++
++## II. BOUNDARY VALUE ANALYSIS (BVA)
++
++### 1. DETAILED STEP-BY-STEP BOUNDARY ANALYSIS
++(Chèn toàn bộ phần giải trình tư duy phân tích toán học các điểm biên Boundary, Boundary−1, Boundary+1 — lấy nguyên nội dung đã chốt ở Step 5, viết chi tiết bằng tiếng Việt)
++
++### 2. BOUNDARY TEST CASES TABLE
++(Chèn bảng test case biên đầy đủ từ Step 6 — tối thiểu 6–9 kịch bản, cùng quy tắc dùng thẻ `<br>` như trên)
++Yêu cầu bắt buộc cho File 1:
++
++Nếu số test case ở Step 4 chưa đủ 8–12 kịch bản, hoặc Step 6 chưa đủ 6–9 kịch bản, phải quay lại bổ sung trước khi xuất file (báo cho người dùng biết đang bổ sung thêm bao nhiêu case và vì sao).
++Giữ nguyên cấu trúc cột bảng đã dùng ở Step 4/Step 6; chỉ được thêm <br> bên trong ô, không đổi số cột.
++Không được rút gọn phần giải trình tư duy (mục "1.") thành gạch đầu dòng sơ sài — đây là phần thể hiện năng lực phân tích, cần viết như một bài giải trình thực sự.
++
++File 2 — FRXX_AI_Audit_Log.md (AI Audit Report), phải theo đúng khung sau:
++# AI AUDIT REPORT (DỮ LIỆU KIỂM TOÁN HỆ THỐNG)
++
++### AI tool name
++* <Tên model/AI tool đang thực thi skill này>
++
++### Date and time
++* <Ngày giờ chạy thực tế của phiên làm việc>
++
++### Prompt
++* **System Core Blueprint (Full Verbatim Content):**
++  <Chèn nguyên văn toàn bộ nội dung file SKILL.md này — từ mục "0. Vai trò (Role definition)" đến hết — làm bằng chứng kiểm toán đầy đủ, không tóm tắt>
++* **Input Feature Specification Used:**
++  <Chèn nguyên văn toàn bộ đặc tả thô ban đầu mà người dùng đã cung cấp ở Step 0>
++
++### The AI output
++<Chèn toàn bộ nội dung đã sinh ra từ Step 1 đến Step 6. Đây phải là bản dán đầy đủ (full copy), KHÔNG được viết dưới dạng link sang file khác (kể cả FXX_report.md), vì audit log cần là bằng chứng độc lập, tự đầy đủ.>
++Yêu cầu bắt buộc cho File 2:
++
++Không rút gọn, không paraphrase lại nội dung Step 1–6 khi dán vào "The AI output" — dán nguyên văn những gì đã được người dùng xác nhận qua các checkpoint.
++Không chèn link nội bộ trỏ sang FXX_report.md hoặc bất kỳ file nào khác trong mục này.
++4. Ghi chú áp dụng cho nhiều feature (Pool A–D)
++Khi người dùng có nhiều feature cần làm (VD 4 feature ở 4 pool), chạy toàn bộ Step 0–8 riêng cho từng feature, không trộn nhiều feature vào cùng 1 Step. Gợi ý người dùng tạo 1 Git commit sau mỗi Step (theo yêu cầu "Git Commit Log" của đề) — Claude có thể gợi ý nội dung commit message ngắn gọn tương ứng (VD: test(FR-02): add equivalence classes for login lockout) nhưng không tự động chạy git thay người dùng trừ khi được yêu cầu rõ.
++
++* **Input Feature Specification Used:**
++  ### FR-11: Xem lịch sử đơn hàng (User)
++
++  - Người dùng chỉ xem được đơn hàng của chính mình.
++  - Hiển thị: Mã đơn, Ngày đặt, Tổng tiền, Trạng thái hiện tại.
++  - Trạng thái phải được dịch sang tiếng Việt rõ ràng và phân biệt màu sắc.                  [Admin xác nhận]          [Admin giao hàng]      [Admin hoàn tất]
++  ┌──────────┐ ─────────────────► ┌───────────┐ ──────────────► ┌──────────┐ ──────────► ┌───────────┐
++  │ pending  │                    │ confirmed │                  │ shipping │             │ delivered │
++  └──────────┘                    └───────────┘                  └──────────┘             └───────────┘
++       │                               │
++       │ [User/Admin hủy]              │ [User/Admin hủy]
++       ▼                               ▼
++  ┌──────────┐                    ┌──────────┐
++  │ canceled │                    │ canceled │
++  └──────────┘                    └──────────┘
++
++### The AI output
++Step 1 — Phân tích nghiệp vụ
++
++Phạm vi mình giữ cho Step 1 là đúng theo đặc tả bạn đưa: màn hình lịch sử đơn hàng của user, chỉ hiển thị đơn của chính user đang đăng nhập, với 4 thông tin hiển thị chính là mã đơn, ngày đặt, tổng tiền và trạng thái hiện tại. Mình không đưa thêm input như lọc, sắp xếp hay phân trang vì đặc tả chưa nêu, nên hiện tại chưa coi đó là miền cần kiểm thử.
++
++| Biến | Vai trò (Input/Output) | Kiểu dữ liệu | Ràng buộc/Range | Giá trị mẫu hợp lệ cụ thể | Nguồn (spec/inferred) |
++|---|---|---|---|---|---|
++| current_user_id | Input | string / UUID | Phải là user đã xác thực; chỉ được xem dữ liệu thuộc đúng user này | usr_1042 | spec + inferred |
++| order_owner_id | Input | string / UUID | Phải trùng với current_user_id thì đơn mới được phép hiển thị | usr_1042 | spec |
++| order_code | Output | string | Không rỗng; là mã đơn duy nhất; hiển thị nguyên trạng, không cho sửa | DH20260708-001 | spec + inferred |
++| order_date | Output | date / datetime hiển thị | Ngày đặt hợp lệ; phải là ngày tồn tại; khi hiển thị nên theo dạng ngày rõ ràng cho user | 08/07/2026 | spec + inferred |
++| total_amount | Output | number / decimal | Giá trị tiền hợp lệ, không âm; hiển thị theo đơn vị tiền của hệ thống | 1250000 | spec + inferred |
++| current_status_code | Input | enum | Chỉ nhận một trong các trạng thái nghiệp vụ: pending, confirmed, shipping, delivered, canceled | shipping | spec |
++| status_display_text_vn | Output | string | Phải được dịch sang tiếng Việt rõ nghĩa, không để nguyên tiếng Anh | Đang giao hàng | spec |
++| status_color | Output | string / color token | Mỗi trạng thái phải có màu phân biệt rõ với các trạng thái khác | orange | spec + inferred |
++| visible_order_list | Output | list / array | Chỉ chứa các đơn có order_owner_id = current_user_id; không hiển thị đơn của user khác | DH20260708-001, DH20260708-002 | spec |
++| empty_state_message | Output | string | Chỉ dùng khi user không có đơn hàng nào; hiển thị trạng thái rỗng rõ ràng | Bạn chưa có đơn hàng nào. | inferred |
++
++Quy ước hiển thị trạng thái mình chốt theo đặc tả và luồng nghiệp vụ bạn đưa là: `pending` → `Chờ xác nhận`, `confirmed` → `Đã xác nhận`, `shipping` → `Đang giao hàng`, `delivered` → `Đã giao hàng`, `canceled` → `Đã hủy`. Màu sắc phải là các màu phân biệt rõ nhau giữa các trạng thái, nên ở bước sau mình sẽ coi đó là một thuộc tính output riêng để phân lớp test.
++
++✅ Đã hoàn thành Step 1: Phân tích nghiệp vụ. Bạn xác nhận nội dung này đã đúng chưa? Có cần chỉnh sửa gì trước khi mình sang Step 2: Xác định Input & Output cho Domain Testing không?
++[DỪNG LẠI CHỜ XÁC NHẬN]
++
++Step 2 — Xác định Input & Output cho Domain Testing
++
++Ở bước này mình chỉ giữ những biến thật sự ảnh hưởng đến logic kiểm thử của FR-11. Các biến như `order_code`, `order_date`, `total_amount`, `current_status_code`, `status_display_text_vn`, `status_color`, `visible_order_list` là phần output cần quan sát, còn input trọng tâm để phân lớp tương đương chủ yếu là quyền sở hữu đơn hàng và trạng thái đơn hàng.
++
++| Biến | Vai trò (Input/Output) | Ghi nhận cho Domain Testing | Quan hệ / phụ thuộc | Giá trị baseline hợp lệ cụ thể |
++|---|---|---|---|---|
++| current_user_id | Input | Giữ lại | Là user đang đăng nhập; dùng để so khớp với chủ đơn | `usr_1042` |
++| order_owner_id | Input | Giữ lại | Phải trùng với `current_user_id` thì đơn mới được hiển thị | `usr_1042` |
++| order_code | Output | Giữ lại | Chỉ là dữ liệu hiển thị, không phân lớp theo logic nhập | `DH20260708-001` |
++| order_date | Output | Giữ lại | Chỉ là dữ liệu hiển thị, phải đúng định dạng ngày | `08/07/2026` |
++| total_amount | Output | Giữ lại | Chỉ là dữ liệu hiển thị tiền | `1250000` |
++| current_status_code | Input | Giữ lại | Quyết định trạng thái hiển thị tiếng Việt và màu sắc | `shipping` |
++| status_display_text_vn | Output | Giữ lại | Phụ thuộc vào `current_status_code` | `Đang giao hàng` |
++| status_color | Output | Giữ lại | Phụ thuộc vào `current_status_code` | `orange` |
++| visible_order_list | Output | Giữ lại | Kết quả cuối của logic lọc theo user | `DH20260708-001, DH20260708-002` |
++| empty_state_message | Output | Giữ lại | Chỉ xuất hiện khi danh sách rỗng | `Bạn chưa có đơn hàng nào.` |
++
++Bộ baseline data mình sẽ dùng xuyên suốt từ đây:
++- User đang đăng nhập: `usr_1042`
++- Đơn hàng hợp lệ thuộc chính user: `DH20260708-001`
++- Ngày đặt: `08/07/2026`
++- Tổng tiền: `1250000`
++- Trạng thái nghiệp vụ mẫu: `shipping`
++- Trạng thái hiển thị tiếng Việt tương ứng: `Đang giao hàng`
++- Màu trạng thái mẫu: `orange`
++
++Quan hệ cần lưu ý cho các bước sau:
++- `order_owner_id` phải bằng `current_user_id` nếu muốn đơn xuất hiện trong lịch sử.
++- `current_status_code` quyết định đồng thời `status_display_text_vn` và `status_color`.
++- `visible_order_list` là output tổng hợp, nên khi test 1 trường vẫn phải giữ các trường còn lại theo baseline hợp lệ.
++
++✅ Đã hoàn thành Step 2: Xác định Input & Output cho Domain Testing. Bạn xác nhận nội dung này đã đúng chưa? Có cần chỉnh sửa gì trước khi mình sang Step 3: Xác định Equivalence Classes (Valid/Invalid) không?
++[DỪNG LẠI CHỜ XÁC NHẬN]
++
++Step 3 — Xác định Equivalence Classes (Valid/Invalid)
++
++Mình chỉ tách các miền tương đương cho những điều kiện có ảnh hưởng trực tiếp đến logic xem lịch sử đơn hàng: quyền sở hữu đơn và trạng thái đơn hàng. Các cột output như mã đơn, ngày đặt, tổng tiền, màu sắc và text tiếng Việt sẽ được kiểm tra qua kết quả hiển thị tương ứng của các miền input này.
++
++| EC ID | Input/Output | Điều kiện | Loại (Valid/Invalid) | Giá trị đại diện cụ thể | Mô tả |
++|---|---|---|---|---|---|
++| EC-01 | current_user_id / order_owner_id | order_owner_id = current_user_id | Valid | usr_1042 / usr_1042 | Đơn thuộc đúng user đang đăng nhập nên được hiển thị |
++| EC-02 | current_user_id / order_owner_id | order_owner_id khác current_user_id | Invalid | usr_1042 / usr_2048 | Đơn của người khác, không được xuất hiện trong lịch sử của user hiện tại |
++| EC-03 | current_status_code | Trạng thái pending | Valid | pending | Đơn ở trạng thái chờ xác nhận, phải hiển thị đúng nhãn tiếng Việt và màu tương ứng |
++| EC-04 | current_status_code | Trạng thái confirmed | Valid | confirmed | Đơn đã được xác nhận, phải hiển thị đúng nhãn tiếng Việt và màu tương ứng |
++| EC-05 | current_status_code | Trạng thái shipping | Valid | shipping | Đơn đang giao hàng, phải hiển thị đúng nhãn tiếng Việt và màu tương ứng |
++| EC-06 | current_status_code | Trạng thái delivered | Valid | delivered | Đơn đã giao hàng, phải hiển thị đúng nhãn tiếng Việt và màu tương ứng |
++| EC-07 | current_status_code | Trạng thái canceled | Valid | canceled | Đơn đã hủy, phải hiển thị đúng nhãn tiếng Việt và màu tương ứng |
++| EC-08 | current_status_code | Giá trị khác enum cho phép | Invalid | returned | Trạng thái không hợp lệ, hệ thống không được dịch như trạng thái hợp lệ |
++| EC-09 | current_status_code | Giá trị rỗng | Invalid | "" | Không có trạng thái, phải bị chặn hoặc xử lý lỗi dữ liệu |
++| EC-10 | visible_order_list | User có ít nhất 1 đơn của chính mình | Valid | DH20260708-001 | Danh sách lịch sử có dữ liệu và hiển thị đúng các cột |
++| EC-11 | visible_order_list | User không có đơn nào | Valid | [] | Hiển thị trạng thái rỗng rõ ràng, không hiển thị đơn của người khác |
++
++Kết luận phân lớp:
++- Hai input độc lập cần kiểm thử là quyền sở hữu đơn và trạng thái đơn hàng.
++- `order_owner_id` phụ thuộc trực tiếp vào `current_user_id`.
++- `current_status_code` là miền rời rạc, nên mỗi trạng thái hợp lệ được tách riêng thành một EC valid.
++- Trường rỗng và giá trị ngoài enum được giữ thành EC invalid riêng để tránh gộp chung.
++
++✅ Đã hoàn thành Step 3: Xác định Equivalence Classes (Valid/Invalid). Bạn xác nhận nội dung này đã đúng chưa? Có cần chỉnh sửa gì trước khi mình sang Step 4: Test Case Report (Domain Testing) không?
++[DỪNG LẠI CHỜ XÁC NHẬN]
++
++Step 4 — Test Case Report (Domain Testing)
++
++Mình đã giữ đúng baseline hợp lệ từ Step 2 và tách test case theo các equivalence class ở Step 3. Phần Actual Result, Status, Defect ID mình để trống đúng theo quy tắc; bạn sẽ điền khi thực thi trên SUT.
++
++| Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested |
++|---|---|---|---|---|---|---|---|---|---|---|
++| TC-01 | Hiển thị 1 đơn của chính user với trạng thái pending | User usr_1042 đang đăng nhập và có ít nhất 1 đơn thuộc chính mình | current_user_id: usr_1042<br>order_code: DH20260708-001<br>order_date: 08/07/2026<br>total_amount: 1250000<br>order_owner_id: usr_1042<br>current_status_code: pending | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát dòng đơn hàng DH20260708-001 | Chỉ hiển thị đơn của usr_1042; đơn có mã DH20260708-001 xuất hiện với ngày đặt 08/07/2026, tổng tiền 1250000, trạng thái tiếng Việt tương ứng với pending và có màu trạng thái đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-02 | Hiển thị 1 đơn của chính user với trạng thái confirmed | User usr_1042 đang đăng nhập và có đơn thuộc chính mình | current_user_id: usr_1042<br>order_code: DH20260708-002<br>order_date: 07/07/2026<br>total_amount: 980000<br>order_owner_id: usr_1042<br>current_status_code: confirmed | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát dòng đơn hàng DH20260708-002 | Chỉ hiển thị đơn của usr_1042; đơn có mã DH20260708-002 xuất hiện với ngày đặt 07/07/2026, tổng tiền 980000, trạng thái tiếng Việt tương ứng với confirmed và có màu trạng thái đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-03 | Hiển thị 1 đơn của chính user với trạng thái shipping | User usr_1042 đang đăng nhập và có đơn thuộc chính mình | current_user_id: usr_1042<br>order_code: DH20260708-003<br>order_date: 06/07/2026<br>total_amount: 450000<br>order_owner_id: usr_1042<br>current_status_code: shipping | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát dòng đơn hàng DH20260708-003 | Chỉ hiển thị đơn của usr_1042; đơn có mã DH20260708-003 xuất hiện với ngày đặt 06/07/2026, tổng tiền 450000, trạng thái tiếng Việt tương ứng với shipping và có màu trạng thái đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-04 | Hiển thị 1 đơn của chính user với trạng thái delivered | User usr_1042 đang đăng nhập và có đơn thuộc chính mình | current_user_id: usr_1042<br>order_code: DH20260708-004<br>order_date: 05/07/2026<br>total_amount: 2100000<br>order_owner_id: usr_1042<br>current_status_code: delivered | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát dòng đơn hàng DH20260708-004 | Chỉ hiển thị đơn của usr_1042; đơn có mã DH20260708-004 xuất hiện với ngày đặt 05/07/2026, tổng tiền 2100000, trạng thái tiếng Việt tương ứng với delivered và có màu trạng thái đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-05 | Hiển thị 1 đơn của chính user với trạng thái canceled | User usr_1042 đang đăng nhập và có đơn thuộc chính mình | current_user_id: usr_1042<br>order_code: DH20260708-005<br>order_date: 04/07/2026<br>total_amount: 300000<br>order_owner_id: usr_1042<br>current_status_code: canceled | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát dòng đơn hàng DH20260708-005 | Chỉ hiển thị đơn của usr_1042; đơn có mã DH20260708-005 xuất hiện với ngày đặt 04/07/2026, tổng tiền 300000, trạng thái tiếng Việt tương ứng với canceled và có màu trạng thái đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-06 | Hiển thị danh sách có nhiều đơn đều thuộc chính user | User usr_1042 đang đăng nhập và có nhiều đơn của chính mình | current_user_id: usr_1042<br>order_code: DH20260708-006A, DH20260708-006B<br>order_date: 03/07/2026, 03/07/2026<br>total_amount: 760000, 125000<br>order_owner_id: usr_1042, usr_1042<br>current_status_code: shipping, pending | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát danh sách đơn hàng | Hệ thống hiển thị nhiều đơn thuộc usr_1042; không bỏ sót đơn nào trong tập dữ liệu của user; mỗi dòng hiển thị đúng mã đơn, ngày đặt, tổng tiền, trạng thái tiếng Việt và màu tương ứng |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-07 | Hiển thị đúng 1 đơn của chính user trong danh sách | User usr_1042 đang đăng nhập và có đúng 1 đơn thuộc chính mình | current_user_id: usr_1042<br>order_code: DH20260708-007<br>order_date: 02/07/2026<br>total_amount: 1500000<br>order_owner_id: usr_1042<br>current_status_code: confirmed | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát số lượng dòng hiển thị | Hệ thống hiển thị đúng 1 đơn của usr_1042; các cột mã đơn, ngày đặt, tổng tiền, trạng thái hiện tại đều có dữ liệu đúng và không sinh thêm đơn giả |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-08 | User không có đơn hàng nào nên hiển thị trạng thái rỗng | User usr_1042 đang đăng nhập và không có đơn nào thuộc chính mình | current_user_id: usr_1042<br>orders_in_system: [] | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát vùng danh sách | Không hiển thị đơn hàng nào; hệ thống hiển thị empty state rõ ràng, không hiển thị đơn của user khác |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-09 | Đơn của user khác không được hiển thị | User usr_1042 đang đăng nhập; hệ thống có đơn thuộc user khác | current_user_id: usr_1042<br>order_code: DH20260708-009<br>order_date: 01/07/2026<br>total_amount: 760000<br>order_owner_id: usr_2048<br>current_status_code: shipping | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Tìm đơn DH20260708-009 | Đơn DH20260708-009 không được hiển thị trong lịch sử của usr_1042 vì owner khác user hiện tại |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-10 | Trạng thái không hợp lệ ngoài enum | User usr_1042 đang đăng nhập và có một đơn trả về trạng thái ngoài danh sách cho phép | current_user_id: usr_1042<br>order_code: DH20260708-010<br>order_date: 30/06/2026<br>total_amount: 520000<br>order_owner_id: usr_1042<br>current_status_code: returned | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát đơn DH20260708-010 | Hệ thống không được hiển thị trạng thái returned như một trạng thái hợp lệ; phải chặn dữ liệu sai hoặc hiển thị xử lý lỗi/fallback rõ ràng theo thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-11 | Trạng thái rỗng không hợp lệ | User usr_1042 đang đăng nhập và có một đơn bị thiếu trạng thái | current_user_id: usr_1042<br>order_code: DH20260708-011<br>order_date: 29/06/2026<br>total_amount: 640000<br>order_owner_id: usr_1042<br>current_status_code: "" | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát đơn DH20260708-011 | Hệ thống không được coi trạng thái rỗng là trạng thái hợp lệ; phải chặn, báo lỗi dữ liệu hoặc hiển thị fallback theo thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++
++## II. BOUNDARY VALUE ANALYSIS (BVA)
++
++### 1. DETAILED STEP-BY-STEP BOUNDARY ANALYSIS
++
++Với FR-11, biên kiểm thử chủ yếu là biên logic chứ không phải biên số học thuần túy. Tính năng này không có input kiểu min/max như số lượng hay độ dài mật khẩu, nhưng vẫn có các điểm gãy rất rõ ở mức nghiệp vụ. Điểm biên quan trọng nhất là chuyển từ không có đơn sang có một đơn, rồi từ một đơn sang nhiều đơn. Đây là nơi giao diện lịch sử đơn hàng dễ lỗi nhất: empty state có thể không hiển thị đúng, danh sách có thể render sai số dòng, hoặc lọc đơn có thể lọt dữ liệu của user khác.
++
++Biên thứ hai là quan hệ sở hữu đơn hàng. Một đơn chỉ được hiển thị nếu `order_owner_id` trùng với `current_user_id`. Đây là biên logic nhị phân, vì chỉ có hai trạng thái: khớp và không khớp. Nếu hệ thống xử lý sai biên này, user có thể thấy dữ liệu của người khác, gây lỗi bảo mật và dữ liệu.
++
++Biên thứ ba là vòng đời trạng thái đơn hàng. Trạng thái `pending`, `confirmed`, `shipping`, `delivered`, `canceled` là các điểm nghiệp vụ mà hệ thống phải map sang tiếng Việt và màu sắc khác nhau. Ở đây, giá trị biên không phải là con số mà là các trạng thái đầu, giữa và cuối của luồng xử lý. Nếu map sai ở bất kỳ điểm nào, user sẽ nhìn thấy nhãn hoặc màu không đúng, làm sai nghĩa nghiệp vụ.
++
++Mình dùng single-fault BVA để cô lập lỗi. Mỗi test case chỉ đẩy một biên chính, các dữ liệu còn lại giữ ở mức hợp lệ. Cách này phù hợp với bài toán FR-11 vì các lỗi thường nằm ở chính điểm chuyển trạng thái hoặc điều kiện lọc đơn. Vì đặc tả không nêu giới hạn tối đa của số đơn trong danh sách, mình không giả định một ngưỡng số học cố định mà chỉ dùng số lượng nhỏ làm biên thực tế để kiểm thử giao diện và logic hiển thị.
++
++| Input | Biên (min/max) | Giá trị test (min-1, min, min+1, max-1, max, max+1) | Ghi chú |
++|---|---|---|---|
++| visible_order_list | min = 0 đơn, max = 2 đơn trong nhóm test mẫu | min-1: không áp dụng<br>min: []<br>min+1: [DH20260708-001]<br>max-1: [DH20260708-001]<br>max: [DH20260708-001, DH20260708-002]<br>max+1: [DH20260708-001, DH20260708-002, DH20260708-003] | Kiểm tra trạng thái rỗng và chuyển từ 0 sang 1, rồi từ 1 sang nhiều đơn. Vì đặc tả không quy định giới hạn số lượng đơn được hiển thị, mình chỉ dùng số lượng nhỏ làm biên kiểm thử thực tế. |
++| order_owner_id so với current_user_id | min = không khớp, max = khớp | min-1: không áp dụng<br>min: usr_2048<br>min+1: usr_1042<br>max-1: usr_2048<br>max: usr_1042<br>max+1: không áp dụng | Đây là biên logic nhị phân: đơn của người khác và đơn của chính mình. Không có min/max số học nên chỉ có 2 trạng thái biên hợp lệ để test. |
++| current_status_code | min = pending, max = delivered theo luồng hiển thị; canceled là nhánh kết thúc | min-1: không áp dụng<br>min: pending<br>min+1: confirmed<br>max-1: shipping<br>max: delivered<br>max+1: canceled | Với trạng thái đơn hàng, mình coi biên là các điểm đầu/cuối của vòng đời chính và nhánh hủy. Đây là biên logic, không phải biên số học. |
++| status_display_text_vn | min = pending -> Chờ xác nhận, max = delivered -> Đã giao hàng | min-1: không áp dụng<br>min: Chờ xác nhận<br>min+1: Đã xác nhận<br>max-1: Đang giao hàng<br>max: Đã giao hàng<br>max+1: Đã hủy | Dùng để đối chiếu việc dịch trạng thái sang tiếng Việt ở các điểm đầu, giữa và cuối luồng. |
++| status_color | min = trạng thái đầu luồng, max = trạng thái cuối luồng | min-1: không áp dụng<br>min: màu cho Chờ xác nhận<br>min+1: màu cho Đã xác nhận<br>max-1: màu cho Đang giao hàng<br>max: màu cho Đã giao hàng<br>max+1: màu cho Đã hủy | Vì đặc tả yêu cầu màu phân biệt rõ, nên mình kiểm tra cả sự thay đổi màu ở từng trạng thái kế cận. |
++
++### 2. BOUNDARY TEST CASES TABLE
++
++| Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested |
++|---|---|---|---|---|---|---|---|---|---|---|
++| TC-BVA-01 | Biên danh sách rỗng - user không có đơn nào | User usr_1042 đang đăng nhập và không có đơn nào thuộc chính mình | current_user_id: usr_1042<br>orders_in_system: [] | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát vùng danh sách | Hệ thống hiển thị empty state rõ ràng, không hiển thị đơn hàng nào và không hiển thị đơn của user khác |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-BVA-02 | Biên danh sách tại min - có đúng 1 đơn của chính user | User usr_1042 đang đăng nhập và có đúng 1 đơn thuộc chính mình | current_user_id: usr_1042<br>order_code: DH20260708-001<br>order_date: 08/07/2026<br>total_amount: 1250000<br>order_owner_id: usr_1042<br>current_status_code: shipping | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát dòng đơn DH20260708-001 | Hệ thống hiển thị đúng 1 đơn của usr_1042; đơn có đủ mã đơn, ngày đặt, tổng tiền, trạng thái tiếng Việt và màu trạng thái tương ứng |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-BVA-03 | Biên danh sách ở vùng nhiều đơn - 2 đơn của chính user | User usr_1042 đang đăng nhập và có 2 đơn thuộc chính mình | current_user_id: usr_1042<br>order_code: DH20260708-001, DH20260708-002<br>order_date: 08/07/2026, 07/07/2026<br>total_amount: 1250000, 980000<br>order_owner_id: usr_1042, usr_1042<br>current_status_code: shipping, confirmed | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát danh sách hiển thị | Hệ thống hiển thị đủ 2 đơn của usr_1042; mỗi dòng hiển thị đúng mã đơn, ngày đặt, tổng tiền, trạng thái tiếng Việt và màu tương ứng |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-BVA-04 | Biên quyền sở hữu - đơn của user khác không được hiển thị | User usr_1042 đang đăng nhập; hệ thống có đơn thuộc user khác | current_user_id: usr_1042<br>order_code: DH20260708-009<br>order_date: 01/07/2026<br>total_amount: 760000<br>order_owner_id: usr_2048<br>current_status_code: shipping | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Tìm đơn DH20260708-009 | Đơn DH20260708-009 không được hiển thị trong lịch sử của usr_1042 vì owner khác user hiện tại |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-BVA-05 | Biên trạng thái đầu luồng - pending | User usr_1042 đang đăng nhập và có đơn của chính mình ở trạng thái pending | current_user_id: usr_1042<br>order_code: DH20260708-010<br>order_date: 30/06/2026<br>total_amount: 520000<br>order_owner_id: usr_1042<br>current_status_code: pending | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát đơn DH20260708-010 | Trạng thái được dịch sang tiếng Việt đúng theo pending và hiển thị màu phân biệt đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-BVA-06 | Biên trạng thái kế cận - confirmed | User usr_1042 đang đăng nhập và có đơn của chính mình ở trạng thái confirmed | current_user_id: usr_1042<br>order_code: DH20260708-011<br>order_date: 29/06/2026<br>total_amount: 640000<br>order_owner_id: usr_1042<br>current_status_code: confirmed | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát đơn DH20260708-011 | Trạng thái được dịch sang tiếng Việt đúng theo confirmed và hiển thị màu phân biệt đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-BVA-07 | Biên trạng thái giữa luồng - shipping | User usr_1042 đang đăng nhập và có đơn của chính mình ở trạng thái shipping | current_user_id: usr_1042<br>order_code: DH20260708-012<br>order_date: 28/06/2026<br>total_amount: 890000<br>order_owner_id: usr_1042<br>current_status_code: shipping | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát đơn DH20260708-012 | Trạng thái được dịch sang tiếng Việt đúng theo shipping và hiển thị màu phân biệt đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-BVA-08 | Biên trạng thái gần cuối luồng - delivered | User usr_1042 đang đăng nhập và có đơn của chính mình ở trạng thái delivered | current_user_id: usr_1042<br>order_code: DH20260708-013<br>order_date: 27/06/2026<br>total_amount: 1500000<br>order_owner_id: usr_1042<br>current_status_code: delivered | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát đơn DH20260708-013 | Trạng thái được dịch sang tiếng Việt đúng theo delivered và hiển thị màu phân biệt đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
++| TC-BVA-09 | Biên trạng thái kết thúc luồng - canceled | User usr_1042 đang đăng nhập và có đơn của chính mình ở trạng thái canceled | current_user_id: usr_1042<br>order_code: DH20260708-014<br>order_date: 26/06/2026<br>total_amount: 300000<br>order_owner_id: usr_1042<br>current_status_code: canceled | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát đơn DH20260708-014 | Trạng thái được dịch sang tiếng Việt đúng theo canceled và hiển thị màu phân biệt đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
