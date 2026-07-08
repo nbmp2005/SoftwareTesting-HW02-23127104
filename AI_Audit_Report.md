@@ -1009,3 +1009,240 @@ KHÔNG có giới hạn số lượng test case. Số lượng test case PHẢI 
 +| TC-BVA-07 | Biên trạng thái giữa luồng - shipping | User usr_1042 đang đăng nhập và có đơn của chính mình ở trạng thái shipping | current_user_id: usr_1042<br>order_code: DH20260708-012<br>order_date: 28/06/2026<br>total_amount: 890000<br>order_owner_id: usr_1042<br>current_status_code: shipping | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát đơn DH20260708-012 | Trạng thái được dịch sang tiếng Việt đúng theo shipping và hiển thị màu phân biệt đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
 +| TC-BVA-08 | Biên trạng thái gần cuối luồng - delivered | User usr_1042 đang đăng nhập và có đơn của chính mình ở trạng thái delivered | current_user_id: usr_1042<br>order_code: DH20260708-013<br>order_date: 27/06/2026<br>total_amount: 1500000<br>order_owner_id: usr_1042<br>current_status_code: delivered | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát đơn DH20260708-013 | Trạng thái được dịch sang tiếng Việt đúng theo delivered và hiển thị màu phân biệt đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
 +| TC-BVA-09 | Biên trạng thái kết thúc luồng - canceled | User usr_1042 đang đăng nhập và có đơn của chính mình ở trạng thái canceled | current_user_id: usr_1042<br>order_code: DH20260708-014<br>order_date: 26/06/2026<br>total_amount: 300000<br>order_owner_id: usr_1042<br>current_status_code: canceled | 1. Đăng nhập bằng user usr_1042<br>2. Mở màn hình lịch sử đơn hàng<br>3. Quan sát đơn DH20260708-014 | Trạng thái được dịch sang tiếng Việt đúng theo canceled và hiển thị màu phân biệt đúng thiết kế |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+
+## Prompt 7
+### AI tool name
+* GPT-5.4 mini
+
+### Date and time
+* 2026-07-08 23:08:02
+
+### Prompt
+* **System Core Blueprint (Full Verbatim Content):**
+  # 0. Vai trò (Role definition)
+  Trong skill này, hãy đóng đồng thời 3 vai trò:
+
+  Business Analyst – đọc đặc tả / user story, làm rõ input, output, ràng buộc nghiệp vụ, và chủ động đề xuất những ràng buộc người dùng có thể đã bỏ sót.
+  Test Analyst – áp dụng đúng quy trình Domain Testing (Equivalence Partitioning) và Boundary Value Analysis theo giáo trình (không phải "generate test case" chung chung).
+  Disciplined Assistant – không tự ý làm tắt, không gộp nhiều bước, luôn dừng lại để người dùng xác nhận (xem Quy tắc checkpoint bên dưới). Đây là quy tắc quan trọng nhất của skill này và không được phá vỡ dù người dùng yêu cầu "làm nhanh gọn giúp mình" — trong trường hợp đó, hãy nhắc lại quy tắc và đề nghị rút gọn nội dung mỗi bước thay vì gộp bước.
+
+  # 1. QUY TẮC BẮT BUỘC — CHECKPOINT (đọc kỹ trước khi chạy skill)
+  KHÔNG BAO GIỜ thực hiện quá 1 Step (xem danh sách Step ở mục 3) trong 1 lượt trả lời.
+  Sau khi hoàn thành xong nội dung của 1 Step, PHẢI dừng lại, in ra đúng dòng đánh dấu [DỪNG LẠI CHỜ XÁC NHẬN], rồi hỏi người dùng đúng dạng:
+
+  "✅ Đã hoàn thành Step N: <tên step>. Bạn xác nhận nội dung này đã đúng chưa? Có cần chỉnh sửa gì trước khi mình sang Step N+1: <tên step tiếp theo> không?
+  [DỪNG LẠI CHỜ XÁC NHẬN]"
+
+  Dòng [DỪNG LẠI CHỜ XÁC NHẬN] phải xuất hiện ở cuối mỗi Step, không được bỏ qua dù nội dung step ngắn hay dài.
+  Chỉ được sang Step N+1 khi người dùng xác nhận rõ ràng (ví dụ: "ok", "tiếp tục", "đúng rồi", "next").
+  Nếu người dùng phản hồi yêu cầu sửa, ở lượt kế tiếp chỉ sửa lại Step N (không tự ý sang Step N+1).
+  Nếu người dùng không phản hồi xác nhận mà hỏi việc khác, dừng ở Step hiện tại, không tự suy diễn tiếp.
+
+  # 2. Input cần thu thập trước khi bắt đầu (Step 0)
+  Trước khi vào Step 1, hỏi/xác nhận với người dùng:
+
+  Tên & mã tính năng (ví dụ: FR-02 Login and account lockout)
+  Đặc tả / mô tả nghiệp vụ của tính năng (đoạn text, link repo, hoặc file)
+  Có ràng buộc nghiệp vụ nào đã biết trước không (range số lượt đăng nhập sai, độ dài password, v.v.)
+  Tên AI tool đang dùng — để ghi vào AI Audit Log ở Step cuối
+
+  Nếu người dùng chưa cung cấp đặc tả, yêu cầu họ cung cấp trước khi chạy Step 1 (đây là ngoại lệ duy nhất được phép hỏi trước khi thực thi, vì thiếu input thì không thể phân tích).
+  [DỪNG LẠI CHỜ XÁC NHẬN]
+
+  # 3. Danh sách Step (mỗi Step = đúng 1 lượt trả lời)
+  ## Step 1 — Phân tích nghiệp vụ (Business Analyst)
+  ...
+
+* **Input Feature Specification Used:**
+  ### FR-17: Quản lý Mã Giảm Giá (Coupon CRUD)
+
+  - Admin có thể Thêm / Xem / Xóa mã giảm giá.
+  - Các trường bắt buộc: `code` (duy nhất), `type` (percent/fixed), `discount_value` (dương), `expired_at`, `min_order_amount` (>= 0), `max_uses_per_user` (>= 1)
+
+### The AI output
+Step 1 — Phân tích nghiệp vụ
+
+FR-17 là tính năng quản lý coupon dành cho Admin, gồm thêm, xem và xóa mã giảm giá. Trọng tâm kiểm thử là các ràng buộc của từng field: `code` duy nhất và không rỗng, `type` chỉ nhận `percent` hoặc `fixed`, `discount_value` dương, `expired_at` hợp lệ, `min_order_amount` không âm và `max_uses_per_user` tối thiểu là 1.
+
+| Biến | Vai trò (Input/Output) | Kiểu dữ liệu | Ràng buộc/Range | Giá trị mẫu hợp lệ cụ thể | Nguồn (spec/inferred) |
+|---|---|---|---|---|---|
+| admin_user | Input | string / account | Phải là tài khoản Admin đã xác thực, có quyền CRUD coupon | admin001 | spec + inferred |
+| code | Input | string | Bắt buộc; duy nhất; không rỗng; không trùng coupon khác | SUMMER2026 | spec + inferred |
+| type | Input | enum | Chỉ nhận `percent` hoặc `fixed` | percent | spec |
+| discount_value | Input | number / decimal | Phải dương; nếu `percent` thì nên trong 1–100; nếu `fixed` thì lớn hơn 0 | 10 | spec + inferred |
+| expired_at | Input | date / datetime | Bắt buộc; phải là ngày/thời điểm hợp lệ trong tương lai khi tạo coupon | 31/12/2026 | spec + inferred |
+| min_order_amount | Input | number / decimal | Phải lớn hơn hoặc bằng 0 | 200000 | spec |
+| max_uses_per_user | Input | integer | Phải lớn hơn hoặc bằng 1 | 1 | spec |
+| coupon_list | Output | list / array | Danh sách coupon phải hiển thị được dữ liệu đã lưu | SUMMER2026, WELCOME10 | spec + inferred |
+| coupon_detail | Output | object / record | Khi xem chi tiết phải hiển thị đúng dữ liệu coupon đã chọn | code: SUMMER2026 | inferred |
+| create_success_message | Output | string | Hiển thị khi tạo coupon thành công | Tạo mã giảm giá thành công. | inferred |
+| delete_success_message | Output | string | Hiển thị khi xóa coupon thành công | Xóa mã giảm giá thành công. | inferred |
+| validation_error_message | Output | string | Hiển thị khi dữ liệu không hợp lệ hoặc vi phạm ràng buộc | `code` đã tồn tại. | spec + inferred |
+
+✅ Đã hoàn thành Step 1: Phân tích nghiệp vụ. Bạn xác nhận nội dung này đã đúng chưa? Có cần chỉnh sửa gì trước khi mình sang Step 2: Xác định Input & Output cho Domain Testing không?
+[DỪNG LẠI CHỜ XÁC NHẬN]
+
+Step 2 — Xác định Input & Output cho Domain Testing
+
+Ở bước này mình chỉ giữ lại các trường ảnh hưởng trực tiếp tới logic kiểm thử coupon CRUD. Các output như danh sách coupon, thông báo thành công/lỗi chỉ là kết quả quan sát, còn input trọng tâm là các trường dữ liệu của coupon và quyền admin.
+
+| Biến | Vai trò (Input/Output) | Ghi nhận cho Domain Testing | Quan hệ / phụ thuộc | Giá trị baseline hợp lệ cụ thể |
+|---|---|---|---|---|
+| admin_user | Input | Giữ lại | Phải là Admin đã xác thực để thực hiện CRUD | admin001 |
+| code | Input | Giữ lại | Phải duy nhất trong hệ thống | SUMMER2026 |
+| type | Input | Giữ lại | Quyết định cách hiểu `discount_value` | percent |
+| discount_value | Input | Giữ lại | Phụ thuộc vào `type`; phải là giá trị dương | 10 |
+| expired_at | Input | Giữ lại | Phải là thời điểm hợp lệ để coupon có hiệu lực kiểm thử | 31/12/2026 |
+| min_order_amount | Input | Giữ lại | Điều kiện đơn hàng tối thiểu để áp dụng coupon | 200000 |
+| max_uses_per_user | Input | Giữ lại | Số lần tối đa mỗi user được dùng coupon | 1 |
+| coupon_list | Output | Giữ lại | Danh sách coupon sau khi thêm/xem | SUMMER2026, WELCOME10 |
+| coupon_detail | Output | Giữ lại | Hiển thị chi tiết coupon đã chọn | code: SUMMER2026 |
+| create_success_message | Output | Giữ lại | Chỉ xuất hiện sau khi thêm thành công | Tạo mã giảm giá thành công. |
+| delete_success_message | Output | Giữ lại | Chỉ xuất hiện sau khi xóa thành công | Xóa mã giảm giá thành công. |
+| validation_error_message | Output | Giữ lại | Xuất hiện khi dữ liệu không hợp lệ hoặc vi phạm ràng buộc | `code` đã tồn tại. |
+
+Bộ baseline data mình sẽ dùng xuyên suốt:
+- Admin đang thao tác: `admin001`
+- Mã coupon hợp lệ mẫu: `SUMMER2026`
+- Loại coupon: `percent`
+- Giá trị giảm: `10`
+- Hạn dùng: `31/12/2026`
+- Đơn hàng tối thiểu: `200000`
+- Số lần dùng tối đa mỗi user: `1`
+
+Quan hệ cần lưu ý:
+- `code` phải duy nhất.
+- `type` quyết định miền hợp lệ của `discount_value`.
+- `expired_at` phải là ngày/thời điểm hợp lệ.
+- `min_order_amount` và `max_uses_per_user` là các ràng buộc số học độc lập, nhưng đều phải được kiểm tra cùng `code`, `type`, `discount_value` trong một lần tạo coupon.
+
+✅ Đã hoàn thành Step 2: Xác định Input & Output cho Domain Testing. Bạn xác nhận nội dung này đã đúng chưa? Có cần chỉnh sửa gì trước khi mình sang Step 3: Xác định Equivalence Classes (Valid/Invalid) không?
+[DỪNG LẠI CHỜ XÁC NHẬN]
+
+Step 3 — Xác định Equivalence Classes (Valid/Invalid)
+
+Mình tách miền tương đương theo đúng các ràng buộc đã chốt ở Step 1 và Step 2, ưu tiên các input quyết định logic tạo coupon: quyền admin, `code`, `type`, `discount_value`, `expired_at`, `min_order_amount`, `max_uses_per_user`. Các output như danh sách coupon hay thông báo chỉ là kết quả để đối chiếu.
+
+| EC ID | Input/Output | Điều kiện | Loại (Valid/Invalid) | Giá trị đại diện cụ thể | Mô tả |
+|---|---|---|---|---|---|
+| EC-01 | admin_user | Admin đã xác thực và có quyền CRUD coupon | Valid | admin001 | Có quyền thao tác coupon |
+| EC-02 | admin_user | Không phải admin hoặc chưa xác thực | Invalid | staff001 | Không đủ quyền CRUD coupon |
+| EC-03 | code | Mã duy nhất, không rỗng | Valid | SUMMER2026 | Mã coupon hợp lệ và chưa trùng |
+| EC-04 | code | Trùng với coupon đã tồn tại | Invalid | SUMMER2026 | Mã bị trùng, không được tạo mới |
+| EC-05 | code | Chuỗi rỗng | Invalid | "" | Không được bỏ trống mã coupon |
+| EC-06 | type | Chọn `percent` | Valid | percent | Loại coupon theo phần trăm |
+| EC-07 | type | Chọn `fixed` | Valid | fixed | Loại coupon theo số tiền cố định |
+| EC-08 | type | Giá trị ngoài enum cho phép | Invalid | bonus | Loại coupon không hợp lệ |
+| EC-09 | discount_value | Với `percent`, giá trị dương trong miền hợp lệ | Valid | 10 | Giá trị giảm theo phần trăm hợp lệ |
+| EC-10 | discount_value | Với `fixed`, giá trị dương | Valid | 50000 | Giá trị giảm cố định hợp lệ |
+| EC-11 | discount_value | Bằng 0 | Invalid | 0 | Giảm giá không được bằng 0 |
+| EC-12 | discount_value | Âm | Invalid | -5 | Giá trị giảm âm không hợp lệ |
+| EC-13 | discount_value | Với `percent`, vượt quá 100 | Invalid | 101 | Phần trăm giảm vượt giới hạn hợp lý |
+| EC-14 | expired_at | Ngày/thời điểm tương lai hợp lệ | Valid | 31/12/2026 | Coupon còn hạn dùng |
+| EC-15 | expired_at | Ngày/thời điểm quá khứ | Invalid | 31/12/2024 | Coupon đã hết hạn trước khi tạo |
+| EC-16 | expired_at | Giá trị rỗng | Invalid | "" | Không có ngày hết hạn |
+| EC-17 | min_order_amount | Giá trị số nguyên/decimal >= 0 | Valid | 200000 | Điều kiện đơn hàng tối thiểu hợp lệ |
+| EC-18 | min_order_amount | Âm | Invalid | -1 | Điều kiện tối thiểu không hợp lệ |
+| EC-19 | max_uses_per_user | Số nguyên >= 1 | Valid | 1 | Mỗi user được dùng ít nhất 1 lần |
+| EC-20 | max_uses_per_user | Bằng 0 | Invalid | 0 | Không được cho phép 0 lần dùng |
+| EC-21 | max_uses_per_user | Âm | Invalid | -2 | Số lần dùng âm không hợp lệ |
+| EC-22 | coupon_list | Có ít nhất 1 coupon trong danh sách | Valid | [SUMMER2026] | Danh sách hiển thị có dữ liệu |
+| EC-23 | coupon_list | Danh sách rỗng | Valid | [] | Danh sách trống nhưng vẫn hợp lệ khi chưa tạo coupon |
+| EC-24 | coupon_detail | Coupon tồn tại và xem được | Valid | SUMMER2026 | Xem chi tiết coupon hợp lệ |
+| EC-25 | coupon_detail | Coupon không tồn tại | Invalid | WINTER2026 | Không tìm thấy coupon để xem/xóa |
+
+Kết luận phân lớp:
+- `code` có 3 miền cần tách riêng: hợp lệ, trùng, rỗng.
+- `type` là enum nên chia theo từng giá trị hợp lệ và một miền invalid chung.
+- `discount_value` phụ thuộc `type`, nên ở bước sau mình sẽ giữ lưu ý này khi chọn test case.
+- `expired_at`, `min_order_amount`, `max_uses_per_user` đều có biên số học rõ nên sẽ dùng lại ở BVA.
+
+✅ Đã hoàn thành Step 3: Xác định Equivalence Classes (Valid/Invalid). Bạn xác nhận nội dung này đã đúng chưa? Có cần chỉnh sửa gì trước khi mình sang Step 4: Test Case Report (Domain Testing) không?
+[DỪNG LẠI CHỜ XÁC NHẬN]
+
+Step 4 — Test Case Report (Domain Testing)
+
+Mình đã giữ đúng baseline từ Step 2 và tách test case theo các equivalence class ở Step 3. Với phần invalid, mỗi test case chỉ cover đúng 1 invalid EC; với phần valid, mình gộp các EC hợp lệ có thể kiểm tra chung trong cùng một luồng CRUD coupon.
+
+| Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| TC-01 | Xem danh sách coupon khi hệ thống chưa có dữ liệu | Admin admin001 đã đăng nhập; hệ thống chưa có coupon nào | admin_user: admin001 | 1. Đăng nhập bằng admin001<br>2. Mở màn hình quản lý coupon<br>3. Quan sát danh sách coupon | Danh sách coupon hiển thị trạng thái rỗng rõ ràng, không báo lỗi, không hiển thị dữ liệu giả |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-02 | Tạo coupon hợp lệ loại percent | Admin admin001 đã đăng nhập và có quyền CRUD coupon | admin_user: admin001<br>code: SUMMER2026<br>type: percent<br>discount_value: 10<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập dữ liệu hợp lệ<br>3. Lưu coupon | Coupon được tạo thành công; hệ thống hiển thị thông báo thành công và coupon xuất hiện trong danh sách |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-03 | Tạo coupon hợp lệ loại fixed | Admin admin001 đã đăng nhập và có quyền CRUD coupon | admin_user: admin001<br>code: WELCOME10<br>type: fixed<br>discount_value: 50000<br>expired_at: 31/12/2026<br>min_order_amount: 0<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập dữ liệu hợp lệ<br>3. Lưu coupon | Coupon được tạo thành công; coupon fixed hiển thị đúng dữ liệu đã nhập trong danh sách |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-04 | Xem chi tiết coupon đã tồn tại | Admin admin001 đã đăng nhập và có coupon SUMMER2026 trong hệ thống | admin_user: admin001<br>code: SUMMER2026 | 1. Mở danh sách coupon<br>2. Chọn coupon SUMMER2026<br>3. Mở màn hình chi tiết | Chi tiết coupon hiển thị đúng code, type, discount_value, expired_at, min_order_amount và max_uses_per_user |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-05 | Xóa coupon đã tồn tại | Admin admin001 đã đăng nhập và coupon SUMMER2026 đang tồn tại | admin_user: admin001<br>code: SUMMER2026 | 1. Chọn coupon SUMMER2026<br>2. Nhấn xóa<br>3. Xác nhận thao tác | Coupon bị xóa thành công; hệ thống hiển thị thông báo xóa thành công và coupon không còn trong danh sách |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-06 | Admin không hợp lệ không được tạo coupon | Người dùng staff001 không có quyền admin | admin_user: staff001<br>code: SUMMER2026<br>type: percent<br>discount_value: 10<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Đăng nhập bằng tài khoản không phải admin<br>2. Mở form thêm coupon<br>3. Thử lưu coupon | Hệ thống từ chối thao tác, không tạo coupon và hiển thị thông báo không đủ quyền |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-07 | Code trùng với coupon đã tồn tại | Admin admin001 đã đăng nhập và coupon SUMMER2026 đã tồn tại | admin_user: admin001<br>code: SUMMER2026<br>type: fixed<br>discount_value: 50000<br>expired_at: 31/12/2026<br>min_order_amount: 0<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập code trùng<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo lỗi code đã tồn tại |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-08 | Code rỗng | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: ""<br>type: percent<br>discount_value: 10<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Để trống code<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo lỗi bắt buộc nhập code |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-09 | Type không thuộc enum cho phép | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: WINTER2026<br>type: bonus<br>discount_value: 10<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập type bonus<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo type không hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-10 | Discount value bằng 0 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: ZERO2026<br>type: fixed<br>discount_value: 0<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập discount_value = 0<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo giá trị giảm phải dương |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-11 | Discount value âm | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: NEG2026<br>type: fixed<br>discount_value: -5<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập discount_value âm<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo giá trị giảm không hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-12 | Percent vượt quá 100 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: OVER100<br>type: percent<br>discount_value: 101<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập percent = 101<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo phần trăm giảm không hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-13 | Ngày hết hạn ở quá khứ | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: OLD2024<br>type: fixed<br>discount_value: 50000<br>expired_at: 31/12/2024<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập expired_at ở quá khứ<br>3. Lưu coupon | Hệ thống từ chối tạo coupon hoặc cảnh báo ngày hết hạn không hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-14 | Ngày hết hạn rỗng | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: NOEXP2026<br>type: percent<br>discount_value: 10<br>expired_at: ""<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Để trống expired_at<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo bắt buộc nhập ngày hết hạn |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-15 | min_order_amount âm | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: MINNEG<br>type: fixed<br>discount_value: 50000<br>expired_at: 31/12/2026<br>min_order_amount: -1<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập min_order_amount âm<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo min_order_amount phải >= 0 |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-16 | max_uses_per_user bằng 0 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: USE0<br>type: percent<br>discount_value: 10<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 0 | 1. Mở form thêm coupon<br>2. Nhập max_uses_per_user = 0<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo số lần dùng tối thiểu phải là 1 |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-17 | max_uses_per_user âm | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: USENEG<br>type: percent<br>discount_value: 10<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: -2 | 1. Mở form thêm coupon<br>2. Nhập max_uses_per_user âm<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo số lần dùng không hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-18 | Xem chi tiết coupon không tồn tại | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: WINTER2026 | 1. Tìm coupon WINTER2026<br>2. Mở chi tiết coupon | Hệ thống không tìm thấy coupon và hiển thị xử lý lỗi phù hợp |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+
+## II. BOUNDARY VALUE ANALYSIS (BVA)
+
+### 1. DETAILED STEP-BY-STEP BOUNDARY ANALYSIS
+
+Mình dùng single-fault BVA cho FR-17: mỗi test case chỉ đẩy một input ra biên, còn các input khác giữ ở giá trị baseline hợp lệ. Cách này phù hợp nhất để cô lập lỗi cho các field số và ngày của coupon, đặc biệt là `discount_value`, `min_order_amount`, `max_uses_per_user`, và `expired_at`.
+
+Với coupon CRUD, các biên có ý nghĩa thực tế nhất là:
+- `discount_value`:
+  - với `percent`: biên hợp lý là 1 và 100
+  - với `fixed`: chỉ cần đảm bảo lớn hơn 0, nên biên dưới là 1
+- `min_order_amount`: biên dưới là 0
+- `max_uses_per_user`: biên dưới là 1
+- `expired_at`: biên ngày là quá khứ, hiện tại, và tương lai
+- `code` và `type` chủ yếu là miền rời rạc/duy nhất, nên không có biên số học rõ để áp BVA theo kiểu min/max
+
+| Input | Biên (min/max) | Giá trị test (min-1, min, min+1, max-1, max, max+1) | Ghi chú |
+|---|---|---|---|
+| discount_value với type = percent | min = 1, max = 100 | min-1: 0<br>min: 1<br>min+1: 2<br>max-1: 99<br>max: 100<br>max+1: 101 | Biên này phản ánh miền phần trăm giảm hợp lý; 0 và 101 là giá trị ngoài miền hợp lệ |
+| discount_value với type = fixed | min = 1 | min-1: 0<br>min: 1<br>min+1: 2<br>max-1: không áp dụng<br>max: không áp dụng<br>max+1: không áp dụng | Fixed chỉ có ràng buộc dương; đặc tả chưa nêu max nên không đặt biên trên |
+| min_order_amount | min = 0 | min-1: -1<br>min: 0<br>min+1: 1<br>max-1: không áp dụng<br>max: không áp dụng<br>max+1: không áp dụng | Giá trị tối thiểu cho đơn hàng được giảm giá |
+| max_uses_per_user | min = 1 | min-1: 0<br>min: 1<br>min+1: 2<br>max-1: không áp dụng<br>max: không áp dụng<br>max+1: không áp dụng | Số lần dùng tối thiểu hợp lệ là 1 |
+| expired_at | min = ngày hiện tại, max = ngày tương lai | min-1: 07/07/2026<br>min: 08/07/2026<br>min+1: 09/07/2026<br>max-1: 30/12/2026<br>max: 31/12/2026<br>max+1: 01/01/2027 | Mình lấy mốc theo ngày chạy hiện tại 08/07/2026; coupon nên hết hạn ở tương lai để hợp lệ khi tạo |
+
+Giải thích lựa chọn:
+- `discount_value` là biến quan trọng nhất vì phụ thuộc vào `type`, nên mình tách riêng biên cho `percent` và `fixed`.
+- `min_order_amount` và `max_uses_per_user` là hai field có ngưỡng rõ ràng nên biên dưới là đủ để bắt lỗi.
+- `expired_at` cần kiểm tra cả trường hợp quá khứ, hiện tại và tương lai vì lỗi ngày là lỗi rất phổ biến khi tạo coupon.
+- `code` là miền duy nhất nên mình sẽ xử lý chủ yếu ở Domain Testing bằng EC trùng/rỗng hơn là BVA số học.
+
+### 2. BOUNDARY TEST CASES TABLE
+
+| Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested |
+|---|---|---|---|---|---|---|---|---|---|---|
+| TC-BVA-01 | Discount value percent dưới biên: 0 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: PERCENT0<br>type: percent<br>discount_value: 0<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập dữ liệu với discount_value = 0<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo discount_value không hợp lệ vì percent phải lớn hơn 0 |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-BVA-02 | Discount value percent tại biên dưới: 1 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: PERCENT1<br>type: percent<br>discount_value: 1<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập dữ liệu với discount_value = 1<br>3. Lưu coupon | Hệ thống chấp nhận coupon nếu các trường khác hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-BVA-03 | Discount value percent tại biên trên: 100 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: PERCENT100<br>type: percent<br>discount_value: 100<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập dữ liệu với discount_value = 100<br>3. Lưu coupon | Hệ thống chấp nhận coupon nếu các trường khác hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-BVA-04 | Discount value percent trên biên: 101 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: PERCENT101<br>type: percent<br>discount_value: 101<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập dữ liệu với discount_value = 101<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo phần trăm giảm vượt giới hạn hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-BVA-05 | Min order amount dưới biên: -1 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: MINNEG1<br>type: fixed<br>discount_value: 50000<br>expired_at: 31/12/2026<br>min_order_amount: -1<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập min_order_amount = -1<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo min_order_amount phải >= 0 |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-BVA-06 | Min order amount tại biên: 0 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: MIN0<br>type: fixed<br>discount_value: 50000<br>expired_at: 31/12/2026<br>min_order_amount: 0<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập min_order_amount = 0<br>3. Lưu coupon | Hệ thống chấp nhận coupon nếu các trường khác hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-BVA-07 | Max uses per user dưới biên: 0 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: USE0<br>type: percent<br>discount_value: 10<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 0 | 1. Mở form thêm coupon<br>2. Nhập max_uses_per_user = 0<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo số lần dùng mỗi user phải >= 1 |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-BVA-08 | Max uses per user tại biên: 1 | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: USE1<br>type: percent<br>discount_value: 10<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập max_uses_per_user = 1<br>3. Lưu coupon | Hệ thống chấp nhận coupon nếu các trường khác hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+| TC-BVA-09 | Ngày hết hạn dưới biên: ngày trong quá khứ | Admin admin001 đã đăng nhập | admin_user: admin001<br>code: EXPIRED2024<br>type: fixed<br>discount_value: 50000<br>expired_at: 31/12/2024<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập expired_at = 31/12/2024<br>3. Lưu coupon | Hệ thống từ chối tạo coupon hoặc cảnh báo ngày hết hạn không hợp lệ vì đã ở quá khứ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+
+### The AI output
+Step 1 — Phân tích nghiệp vụ
+FR-17 là tính năng quản lý coupon dành cho Admin, gồm thêm, xem và xóa mã giảm giá. Trọng tâm kiểm thử là các ràng buộc của từng field: `code` duy nhất và không rỗng, `type` chỉ nhận `percent` hoặc `fixed`, `discount_value` dương, `expired_at` hợp lệ, `min_order_amount` không âm và `max_uses_per_user` tối thiểu là 1.
+
+Step 2 — Xác định Input & Output cho Domain Testing
+Ở bước này mình chỉ giữ lại các trường ảnh hưởng trực tiếp tới logic kiểm thử coupon CRUD. Các output như danh sách coupon, thông báo thành công/lỗi chỉ là kết quả quan sát, còn input trọng tâm là các trường dữ liệu của coupon và quyền admin.
+
+Step 3 — Xác định Equivalence Classes (Valid/Invalid)
+Mình tách miền tương đương theo đúng các ràng buộc đã chốt ở Step 1 và Step 2, ưu tiên các input quyết định logic tạo coupon: quyền admin, `code`, `type`, `discount_value`, `expired_at`, `min_order_amount`, `max_uses_per_user`. Các output như danh sách coupon hay thông báo chỉ là kết quả để đối chiếu.
+
+Step 4 — Test Case Report (Domain Testing)
+Mình đã giữ đúng baseline từ Step 2 và tách test case theo các equivalence class ở Step 3. Với phần invalid, mỗi test case chỉ cover đúng 1 invalid EC; với phần valid, mình gộp các EC hợp lệ có thể kiểm tra chung trong cùng một luồng CRUD coupon.
+
+Step 5 — BVA Thought Process
+Mình dùng single-fault BVA cho FR-17: mỗi test case chỉ đẩy một input ra biên, còn các input khác giữ ở giá trị baseline hợp lệ. Cách này phù hợp nhất để cô lập lỗi cho các field số và ngày của coupon, đặc biệt là `discount_value`, `min_order_amount`, `max_uses_per_user`, và `expired_at`.
+
+Step 6 — Kết xuất Bảng Test Case BVA
+Mình giữ đúng các giá trị biên đã chốt ở Step 5 và dùng 9 test case để phủ các điểm biên quan trọng nhất của coupon CRUD: `discount_value`, `min_order_amount`, `max_uses_per_user`, và `expired_at`. Phần Actual Result, Status, Defect ID để trống theo đúng quy tắc, vì người dùng sẽ thực thi trên SUT rồi điền sau.
