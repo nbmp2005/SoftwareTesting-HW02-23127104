@@ -21,3 +21,14 @@ AI đã tự bịa ra dữ liệu backend làm Input Data, cụ thể là curren
 - Đây là tính năng AI làm tốt nhất, giá trị cụ thể khớp gần như hoàn toàn với dữ liệu dùng khi thực thi thật (SUMMER2026, admin@eshop.com, discount_value: 101, min_order_amount: -1...) mà không cần sửa lại nhiều, một phần vì chỗ này em cung cấp thông tin format dữ liệu.
 ### Điểm yếu
 - TC-BVA-04 (percent = 101, tức max+1) và TC-10 ở Domain Testing (percent = 101) là cùng một bộ dữ liệu test, đây cũng không phải lỗi của AI nhưng cho thấy khi range quá hẹp (chỉ 1–100), Domain Testing và BVA có xu hướng tất yếu trùng lặp giá trị biên trên.
+
+## FR-06: Xem chi tiết sản phẩm (User) - Mobile
+### Điểm mạnh
+- Tuân thủ quy trình checkpoint nghiêm ngặt: AI dừng đúng sau mỗi Step, không tự gộp bước, không tự suy diễn khi thiếu xác nhận 
+- Tư duy phân lớp EC chặt chẽ, tách case có lý do rõ ràng: việc tách product_status thành EC riêng thay vì kết hợp với quantity, hay tách EC-QTY-02/EC-QTY-08 (0 vs âm) dù cùng "nhỏ hơn min" nhưng khác cơ chế validate, thể hiện đúng nguyên tắc "nếu nghi ngờ các phần tử trong 1 EC xử lý khác nhau → tách nhỏ".
+- Chủ động lấp khoảng trống đặc tả và gắn nhãn minh bạch: các ràng buộc suy luận (max=99, case hết hàng, case NULL) đều được đánh dấu [inferred] rõ ràng, không đánh lận với dữ liệu từ spec gốc — giúp người review dễ kiểm tra lại giả định.
+- Test data cụ thể, không mơ hồ: không có test case nào dùng cụm chung chung kiểu "giá trị bất kỳ"; mọi input đều là giá trị copy-paste chạy ngay được (0, "abc", 2.5, "!@#$%", -5...).
+
+### Điểm yếu
+
+Thiết kế đầy đủ nhưng không đảm bảo được thực thi đầy đủ — rủi ro nằm ở khâu chuyển giao. Đây là gap lớn nhất: AI tạo ra bộ test case rất kỹ (10 domain + 6 BVA, cover cả 2 phía biên và toàn bộ trạng thái sản phẩm), nhưng bản thực thi chỉ chạy 10/16 case, bỏ đúng cụm case khó/ít trực quan hơn (trạng thái Hết hàng, NULL, biên trên). Đây không hẳn là lỗi của AI — nhưng AI (hoặc quy trình audit) không có bước nào đối chiếu "test case đã thiết kế" với "test case đã thực thi" để cảnh báo thiếu sót, dẫn đến rủi ro cho là "đã test đầy đủ" trong khi chỉ mới cover phân nửa.
