@@ -309,9 +309,6 @@ Với từng input condition, áp dụng đúng guideline đã học:
 
 `[DỪNG LẠI CHỜ XÁC NHẬN]` (xác nhận để kết thúc phiên cho feature này trước khi bắt đầu feature tiếp theo)
 
-## 4. Ghi chú áp dụng cho nhiều feature (Pool A–D)
-
-Khi người dùng có nhiều feature cần làm (VD 4 feature ở 4 pool), chạy toàn bộ Step 0–8 **riêng cho từng feature**, không trộn nhiều feature vào cùng 1 Step. Gợi ý người dùng tạo 1 Git commit sau mỗi Step (theo yêu cầu "Git Commit Log" của đề) — Claude có thể gợi ý nội dung commit message ngắn gọn tương ứng (VD: `test(FR-02): add equivalence classes for login lockout`) nhưng không tự động chạy git thay người dùng trừ khi được yêu cầu rõ.
 
 ## 5. Những điều KHÔNG làm
 
@@ -514,8 +511,7 @@ Bạn xem lại file, nếu ổn thì mình có thể tiếp tục demo chạy t
 
   Không rút gọn, không paraphrase lại nội dung Step 1–6 khi dán vào "The AI output" — dán nguyên văn những gì đã được người dùng xác nhận qua các checkpoint.
   Không chèn link nội bộ trỏ sang FXX_report.md hoặc bất kỳ file nào khác trong mục này.
-  4. Ghi chú áp dụng cho nhiều feature (Pool A–D)
-  Khi người dùng có nhiều feature cần làm (VD 4 feature ở 4 pool), chạy toàn bộ Step 0–8 riêng cho từng feature, không trộn nhiều feature vào cùng 1 Step. Gợi ý người dùng tạo 1 Git commit sau mỗi Step (theo yêu cầu "Git Commit Log" của đề) — Claude có thể gợi ý nội dung commit message ngắn gọn tương ứng (VD: test(FR-02): add equivalence classes for login lockout) nhưng không tự động chạy git thay người dùng trừ khi được yêu cầu rõ.
+  
 
 * **Input Feature Specification Used:**
   Follow instructions in #prompt:SKILL.md with these arguments: ### FR-03: Quên mật khẩu & Đặt lại mật khẩu (2 bước)
@@ -855,8 +851,7 @@ KHÔNG có giới hạn số lượng test case. Số lượng test case PHẢI 
 +
 +Không rút gọn, không paraphrase lại nội dung Step 1–6 khi dán vào "The AI output" — dán nguyên văn những gì đã được người dùng xác nhận qua các checkpoint.
 +Không chèn link nội bộ trỏ sang FXX_report.md hoặc bất kỳ file nào khác trong mục này.
-+4. Ghi chú áp dụng cho nhiều feature (Pool A–D)
-+Khi người dùng có nhiều feature cần làm (VD 4 feature ở 4 pool), chạy toàn bộ Step 0–8 riêng cho từng feature, không trộn nhiều feature vào cùng 1 Step. Gợi ý người dùng tạo 1 Git commit sau mỗi Step (theo yêu cầu "Git Commit Log" của đề) — Claude có thể gợi ý nội dung commit message ngắn gọn tương ứng (VD: test(FR-02): add equivalence classes for login lockout) nhưng không tự động chạy git thay người dùng trừ khi được yêu cầu rõ.
+
 +
 +* **Input Feature Specification Used:**
 +  ### FR-11: Xem lịch sử đơn hàng (User)
@@ -1434,8 +1429,7 @@ Yêu cầu bắt buộc cho File 2:
 
 Không rút gọn, không paraphrase lại nội dung Step 1–6 khi dán vào "The AI output". Không rút gọn, không paraphrase lại nội dung Step 1–6 khi dán vào "The AI output", dán nguyên văn những gì đã được người dùng xác nhận qua các checkpoint.
 Không chèn link nội bộ trỏ sang FXX_report.md hoặc bất kỳ file nào khác trong mục này.
-4. Ghi chú áp dụng cho nhiều feature (Pool A–D)
-Khi người dùng có nhiều feature cần làm (VD 4 feature ở 4 pool), chạy toàn bộ Step 0–8 riêng cho từng feature, không trộn nhiều feature vào cùng 1 Step. Gợi ý người dùng tạo 1 Git commit sau mỗi Step (theo yêu cầu "Git Commit Log" của đề) — Claude có thể gợi ý nội dung commit message ngắn gọn tương ứng (VD: test(FR-02): add equivalence classes for login lockout) nhưng không tự động chạy git thay người dùng trừ khi được yêu cầu rõ.
+
 ```
 
 * **Input Feature Specification Used:**
@@ -1454,21 +1448,21 @@ FR-06: Xem chi tiết sản phẩm phân hệ mobile
 
 **[Step 0 — Xác nhận Input] (thực hiện qua 3 lượt hỏi-đáp)**
 
-Lượt 1 — Claude xác nhận:
+Lượt 1 — ác nhận:
 - Tên & mã tính năng: FR-06 — Xem chi tiết sản phẩm (phân hệ mobile)
 - Đặc tả tổng hợp từ text + ảnh minh họa (như nêu ở mục "Input Feature Specification Used" phía trên)
 - Ràng buộc đã biết: Số lượng kiểu số nguyên dương, min = 1; chưa rõ max và case hết hàng
 - Hỏi tên AI tool
 
-Người dùng trả lời: "Claude Sonnet 5"
+Người dùng trả lời: "GPT-5.4 mini"
 
-Lượt 2 — Claude hỏi làm rõ thêm 2 điểm:
+Lượt 2 — Hỏi làm rõ thêm 2 điểm:
 1. Giá trị tối đa (max) của ô Số lượng: (a) không cap, theo tồn kho; (b) có cap cứng cố định; (c) để Claude tự đề xuất [inferred]
 2. Trường hợp sản phẩm hết hàng/ngừng kinh doanh xử lý thế nào: (a) disable nút + báo "Hết hàng"; (b) vẫn cho bấm nhưng báo lỗi submit; (c) để Claude tự suy luận [inferred]
 
 Người dùng trả lời: "ko có yêu cầu cụ thể"
 
-Lượt 3 — Claude chốt input:
+Lượt 3 — Chốt input:
 - Max Số lượng [inferred]: 99
 - Case hết hàng [inferred]: disable ô Số lượng + disable nút "Thêm vào giỏ hàng", nhãn nút đổi thành "Hết hàng"
 - Bảng tổng hợp Input đã chốt:
@@ -1479,7 +1473,7 @@ Lượt 3 — Claude chốt input:
 | Đặc tả | Hiển thị Ảnh lớn, Tên, Giá, Mô tả, Danh mục; ô Số lượng (số nguyên dương, min=1); nút Thêm vào giỏ hàng có phản hồi trực quan (toast/badge) |
 | Ràng buộc số lượng | min = 1, max = 99 [inferred], chỉ số nguyên dương |
 | Ràng buộc trạng thái sản phẩm | Còn hàng (mặc định) / Hết hàng [inferred] → ảnh hưởng đến trạng thái nút và ô số lượng |
-| AI tool | Claude Sonnet 5 |
+| AI tool | GPT-5.4 mini |
 
 Người dùng xác nhận: "ok"
 
