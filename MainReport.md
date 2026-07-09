@@ -248,3 +248,80 @@ Giải thích lựa chọn:
 | TC-BVA-07 | Max uses per user dưới biên: 0 | Admin admin@eshop.com đã đăng nhập | admin_email: admin@eshop.com<br>code: USE0<br>type: percent<br>discount_value: 10<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 0 | 1. Mở form thêm coupon<br>2. Nhập max_uses_per_user = 0<br>3. Lưu coupon | Hệ thống từ chối tạo coupon và báo số lần dùng mỗi user phải >= 1 |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
 | TC-BVA-08 | Max uses per user tại biên: 1 | Admin admin@eshop.com đã đăng nhập | admin_email: admin@eshop.com<br>code: USE1<br>type: percent<br>discount_value: 10<br>expired_at: 31/12/2026<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập max_uses_per_user = 1<br>3. Lưu coupon | Hệ thống chấp nhận coupon nếu các trường khác hợp lệ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
 | TC-BVA-09 | Ngày hết hạn dưới biên: ngày trong quá khứ | Admin admin@eshop.com đã đăng nhập | admin_email: admin@eshop.com<br>code: EXPIRED2024<br>type: fixed<br>discount_value: 50000<br>expired_at: 31/12/2024<br>min_order_amount: 200000<br>max_uses_per_user: 1 | 1. Mở form thêm coupon<br>2. Nhập expired_at = 31/12/2024<br>3. Lưu coupon | Hệ thống từ chối tạo coupon hoặc cảnh báo ngày hết hạn không hợp lệ vì đã ở quá khứ |  |  |  |  | Cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại |
+
+# FR-06: Xem chi tiết sản phẩm (mobile)
+# BÁO CÁO KIỂM THỬ - Xem chi tiết sản phẩm (phân hệ mobile) (FR06)
+
+## I. DOMAIN TESTING
+
+### 1. DETAILED STEP-BY-STEP DOMAIN ANALYSIS
+
+**a. Phân tích nghiệp vụ (Business Analyst)**
+
+Tính năng FR-06 cho phép người dùng xem chi tiết một sản phẩm trên phân hệ mobile, bao gồm các thông tin: Ảnh lớn, Tên sản phẩm, Giá, Mô tả, và Danh mục. Ngoài ra màn hình còn cung cấp một ô nhập Số lượng và nút "Thêm vào giỏ hàng".
+
+Qua phân tích đặc tả gốc kết hợp với hình ảnh giao diện minh họa (sản phẩm mẫu "iPhone 15 Pro Max", giá 30.000.000 đ, mô tả "Điện thoại cao cấp của Apple"), nhóm phân tích xác định các input/output chính như sau:
+
+- **Input trực tiếp từ người dùng:** `quantity` (Số lượng) — theo đặc tả gốc là số nguyên dương, tối thiểu = 1. Đặc tả không nêu rõ giá trị tối đa, do đó nhóm phân tích bổ sung ràng buộc suy luận (inferred): max = 99, đây là giá trị cap phổ biến trong các hệ thống thương mại điện tử để tránh người dùng đặt số lượng bất hợp lý mà không cần kiểm tra tồn kho phức tạp.
+- **Input điều kiện nghiệp vụ (không phải trường nhập tay):** `product_status` — trạng thái Còn hàng/Hết hàng. Đặc tả gốc không đề cập tới trường hợp hết hàng, nhóm phân tích bổ sung (inferred) vì đây là một nhánh nghiệp vụ thực tế bắt buộc phải có trong bất kỳ màn hình chi tiết sản phẩm nào có chức năng "Thêm vào giỏ hàng" — nếu không xử lý, hệ thống có nguy cơ cho phép thêm sản phẩm hết hàng vào giỏ.
+- **Output tĩnh:** `product_name`, `product_price`, `product_description`, `product_category`, `product_image` — đây là các trường chỉ hiển thị, không có logic rẽ nhánh phức tạp, nên không được đưa vào phân lớp tương đương mà chỉ dùng làm dữ liệu baseline khi xây dựng test case.
+- **Output động (phụ thuộc input):** trạng thái enable/disable của ô Số lượng và nút "Thêm vào giỏ hàng"; nội dung phản hồi trực quan (toast/badge) sau khi thêm vào giỏ hàng.
+
+Nhóm phân tích cũng xác định mối quan hệ ràng buộc quan trọng giữa hai input được giữ lại: `product_status` và `quantity` không độc lập hoàn toàn — khi `product_status = "Hết hàng"`, ô `quantity` bị vô hiệu hóa và không có ý nghĩa kiểm thử theo range nữa. Do đó, quan hệ này được xử lý bằng cách tách `product_status` thành một nhóm Equivalence Class riêng, độc lập với các EC của `quantity`, thay vì kết hợp cả hai biến vào cùng một bảng phân lớp.
+
+Một bộ dữ liệu nền (baseline) được chốt để tái sử dụng xuyên suốt các bước sau, đảm bảo mọi test case đều có đầy đủ dữ liệu hợp lệ cho các trường không phải trọng tâm kiểm thử:
+
+```
+product_id: SP001
+product_name: iPhone 15 Pro Max
+product_price: 30.000.000 đ
+product_description: Điện thoại cao cấp của Apple
+product_category: Điện thoại
+product_image: https://cdn.shop.vn/products/iphone15promax.jpg
+product_status: Còn hàng
+quantity: 1
+```
+
+**b. Xác định Equivalence Class (Valid/Invalid)**
+
+Đối với `product_status` (kiểu enum, mỗi giá trị được xử lý khác nhau về mặt logic), nhóm phân tích áp dụng nguyên tắc: mỗi giá trị hợp lệ tương ứng với 1 EC valid riêng, cộng thêm 1 EC invalid đại diện cho trường hợp dữ liệu lỗi/không xác định (ví dụ trạng thái trả về null từ backend). Kết quả: EC-STT-01 ("Còn hàng" — valid), EC-STT-02 ("Hết hàng" — valid vì đây là trạng thái hợp lệ về mặt hệ thống dù không cho thêm giỏ hàng), EC-STT-03 (dữ liệu null — invalid, đại diện cho lỗi hệ thống cần được xử lý an toàn).
+
+Đối với `quantity` (range số nguyên 1–99), nhóm phân tích áp dụng đúng nguyên tắc phân lớp cho kiểu range: 1 EC valid đại diện cho toàn bộ khoảng hợp lệ (EC-QTY-01, giá trị đại diện = 5), 2 EC invalid cho hai phía ngoài range — nhỏ hơn min (EC-QTY-02, giá trị = 0) và lớn hơn max (EC-QTY-03, giá trị = 100). Bên cạnh đó, vì `quantity` còn chịu ràng buộc "phải là số nguyên", nhóm phân tích áp dụng thêm nguyên tắc "must-be case" để tách riêng: EC-QTY-04 (giá trị không phải số, ví dụ "abc") và EC-QTY-05 (giá trị số nhưng không nguyên, ví dụ 2.5) — hai EC này được tách riêng vì cơ chế xử lý lỗi (validate kiểu dữ liệu vs validate phần thập phân) trong thực tế thường khác nhau.
+
+Ngoài ra, nhóm phân tích nhận thấy các phần tử trong nhóm "invalid chung chung" có thể không được xử lý giống nhau, nên tách nhỏ thêm ba EC: EC-QTY-06 (giá trị rỗng — người dùng không nhập gì, thường validate bằng required-field check, khác với validate range/kiểu dữ liệu), EC-QTY-07 (ký tự đặc biệt — có thể được chặn ngay từ tầng input filter của giao diện, khác với lỗi logic backend), và EC-QTY-08 (số âm — tách riêng khỏi EC-QTY-02 vì trong nhiều hệ thống, kiểm tra "quantity > 0" và kiểm tra "không cho phép số âm" là hai đoạn code validate khác nhau, có khả năng phát sinh lỗi độc lập với nhau).
+
+### 2. DOMAIN TEST CASES TABLE
+
+| Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested |
+|---|---|---|---|---|---|---|---|---|---|---|
+| TC_FR06_01 | Xem chi tiết & thêm vào giỏ hàng với sản phẩm còn hàng, số lượng hợp lệ (EC-STT-01 + EC-QTY-01) | Sản phẩm SP001 đang ở trạng thái "Còn hàng" | product_status: Còn hàng<br>quantity: 5<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Kiểm tra thông tin hiển thị<br>3. Nhập 5 vào ô Số lượng<br>4. Bấm nút "Thêm vào giỏ hàng" | Hiển thị đầy đủ Ảnh, Tên, Giá, Mô tả, Danh mục; ô Số lượng nhận giá trị 5; sau khi bấm nút, hệ thống hiển thị toast "Đã thêm 5 iPhone 15 Pro Max vào giỏ hàng" và badge giỏ hàng cập nhật +5 | | Chưa test | | | |
+| TC_FR06_02 | Xem chi tiết sản phẩm ở trạng thái hết hàng (EC-STT-02) | Sản phẩm SP001 đang ở trạng thái "Hết hàng" | product_status: Hết hàng<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Kiểm tra trạng thái ô Số lượng và nút | Ô Số lượng bị disable; nút "Thêm vào giỏ hàng" bị disable và hiển thị nhãn "Hết hàng" | | Chưa test | | | |
+| TC_FR06_03 | Trạng thái sản phẩm lỗi/không xác định (EC-STT-03) | Dữ liệu trạng thái sản phẩm từ hệ thống bị null | product_status: NULL<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết sản phẩm có product_status = NULL<br>2. Quan sát hành vi hệ thống | Hệ thống xử lý an toàn: coi như hết hàng, disable ô Số lượng và nút "Thêm vào giỏ hàng", không crash/lỗi hiển thị | | Chưa test | | | |
+| TC_FR06_04 | Nhập số lượng = 0 (EC-QTY-02) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 0<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập 0 vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị thông báo lỗi "Số lượng phải lớn hơn hoặc bằng 1"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_05 | Nhập số lượng = 100, vượt max (EC-QTY-03) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 100<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập 100 vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị thông báo lỗi "Số lượng tối đa cho phép là 99"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_06 | Nhập ký tự chữ vào ô Số lượng (EC-QTY-04) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: "abc"<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập "abc" vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối nhập/hiển thị lỗi "Vui lòng nhập số nguyên hợp lệ"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_07 | Nhập số thập phân vào ô Số lượng (EC-QTY-05) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 2.5<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập 2.5 vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị lỗi "Số lượng phải là số nguyên"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_08 | Không nhập số lượng (ô rỗng) (EC-QTY-06) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: "" (rỗng)<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Để trống ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống hiển thị lỗi "Vui lòng nhập số lượng"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_09 | Nhập ký tự đặc biệt vào ô Số lượng (EC-QTY-07) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: "!@#$%"<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập "!@#$%" vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối nhập/hiển thị lỗi "Số lượng không hợp lệ"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_10 | Nhập số âm vào ô Số lượng (EC-QTY-08) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: -5<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập -5 vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị lỗi "Số lượng phải là số nguyên dương"; không thêm vào giỏ hàng | | Chưa test | | | |
+
+## II. BOUNDARY VALUE ANALYSIS (BVA)
+
+### 1. DETAILED STEP-BY-STEP BOUNDARY ANALYSIS
+
+Trong phạm vi FR-06, chỉ có một input mang tính chất số học với range rõ ràng là `quantity`, với ràng buộc đã chốt ở phần Domain Testing: 1 ≤ quantity ≤ 99 (min = 1, max = 99, số nguyên dương). Trường `product_status` là kiểu enum, không có cấu trúc "biên" theo nghĩa toán học nên không áp dụng BVA cho input này — toàn bộ các trạng thái của nó đã được bao phủ đầy đủ bằng Equivalence Class ở phần Domain Testing.
+
+Theo lý thuyết Boundary Value Analysis, các lỗi lập trình thường phát sinh tại chính các điểm biên của một điều kiện so sánh — ví dụ lập trình viên dùng toán tử `>` thay vì `>=`, hoặc `<` thay vì `<=`, dẫn đến việc giá trị biên bị xử lý sai một cách âm thầm mà kỹ thuật Equivalence Partitioning (vốn chỉ lấy một giá trị đại diện ở giữa miền) không thể phát hiện ra. Do đó, với biên dưới (min = 1), nhóm phân tích xác định ba giá trị cần kiểm tra: min − 1 = 0 (kỳ vọng invalid, vì thấp hơn ngưỡng tối thiểu), min = 1 (kỳ vọng valid, đây là giá trị nhỏ nhất được hệ thống chấp nhận), và min + 1 = 2 (kỳ vọng valid, giá trị ngay sát trên ngưỡng). Tương tự, với biên trên (max = 99), ba giá trị được xác định là: max − 1 = 98 (kỳ vọng valid), max = 99 (kỳ vọng valid, giá trị lớn nhất được chấp nhận), và max + 1 = 100 (kỳ vọng invalid, vượt quá ngưỡng tối đa).
+
+Về cách tiếp cận, vì FR-06 chỉ có duy nhất một input mang tính số học có range (không có input số thứ hai để kết hợp phối hợp đẩy biên), nên hai chiến lược single-fault BVA (chỉ đẩy một input ra biên tại một thời điểm) và worst-case BVA (đẩy đồng thời nhiều input ra biên) cho ra kết quả thực thi hoàn toàn giống nhau trong trường hợp này. Nhóm phân tích lựa chọn tiếp cận theo single-fault BVA làm chiến lược chính thức, vì đây là cách tiếp cận chuẩn mực và đủ để bao phủ toàn bộ các điểm biên cần kiểm tra khi chỉ có một input có range.
+
+### 2. BOUNDARY TEST CASES TABLE
+
+| Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested | Ghi chú trùng lặp |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| TC_BVA_FR06_01 | Nhập số lượng tại biên dưới − 1 (min−1 = 0) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 0<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 0 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị lỗi "Số lượng phải lớn hơn hoặc bằng 1"; không thêm vào giỏ hàng | | Chưa test | | | | Trùng với TC_FR06_04 (Domain Testing) — giữ lại vì đại diện giá trị biên min−1 |
+| TC_BVA_FR06_02 | Nhập số lượng tại biên dưới (min = 1) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 1<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 1 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống chấp nhận, thêm 1 sản phẩm vào giỏ hàng, hiển thị toast "Đã thêm 1 iPhone 15 Pro Max vào giỏ hàng" | | Chưa test | | | | Không trùng — giá trị biên min chưa được test riêng ở Domain Testing |
+| TC_BVA_FR06_03 | Nhập số lượng ngay trên biên dưới (min+1 = 2) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 2<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 2 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống chấp nhận, thêm 2 sản phẩm vào giỏ hàng, hiển thị toast tương ứng | | Chưa test | | | | Không trùng |
+| TC_BVA_FR06_04 | Nhập số lượng ngay dưới biên trên (max−1 = 98) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 98<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 98 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống chấp nhận, thêm 98 sản phẩm vào giỏ hàng, hiển thị toast tương ứng | | Chưa test | | | | Không trùng |
+| TC_BVA_FR06_05 | Nhập số lượng tại biên trên (max = 99) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 99<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 99 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống chấp nhận, thêm 99 sản phẩm vào giỏ hàng, hiển thị toast tương ứng | | Chưa test | | | | Không trùng — giá trị biên max chưa được test riêng ở Domain Testing |
+| TC_BVA_FR06_06 | Nhập số lượng vượt biên trên (max+1 = 100) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 100<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 100 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị lỗi "Số lượng tối đa cho phép là 99"; không thêm vào giỏ hàng | | Chưa test | | | | Trùng với TC_FR06_05 (Domain Testing) — giữ lại vì đại diện giá trị biên max+1 |

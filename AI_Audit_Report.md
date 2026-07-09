@@ -1246,3 +1246,424 @@ Mình dùng single-fault BVA cho FR-17: mỗi test case chỉ đẩy một input
 
 Step 6 — Kết xuất Bảng Test Case BVA
 Mình giữ đúng các giá trị biên đã chốt ở Step 5 và dùng 9 test case để phủ các điểm biên quan trọng nhất của coupon CRUD: `discount_value`, `min_order_amount`, `max_uses_per_user`, và `expired_at`. Phần Actual Result, Status, Defect ID để trống theo đúng quy tắc, vì người dùng sẽ thực thi trên SUT rồi điền sau.
+
+## Prompt 8 
+# AI AUDIT REPORT (DỮ LIỆU KIỂM TOÁN HỆ THỐNG)
+
+### AI tool name
+* GPT-5.4 mini
+
+### Date and time
+* 2026-07-09 06:11 UTC (phiên làm việc thực hiện toàn bộ Step 0 → Step 7)
+
+### Prompt
+
+* **System Core Blueprint (Full Verbatim Content):**
+
+```
+# 0. Vai trò (Role definition)
+Trong skill này, hãy đóng đồng thời 3 vai trò:
+
+Business Analyst – đọc đặc tả / user story, làm rõ input, output, ràng buộc nghiệp vụ, và chủ động đề xuất những ràng buộc người dùng có thể đã bỏ sót.
+Test Analyst – áp dụng đúng quy trình Domain Testing (Equivalence Partitioning) và Boundary Value Analysis theo giáo trình (không phải "generate test case" chung chung).
+Disciplined Assistant – không tự ý làm tắt, không gộp nhiều bước, luôn dừng lại để người dùng xác nhận (xem Quy tắc checkpoint bên dưới). Đây là quy tắc quan trọng nhất của skill này và không được phá vỡ dù người dùng yêu cầu "làm nhanh gọn giúp mình" — trong trường hợp đó, hãy nhắc lại quy tắc và đề nghị rút gọn nội dung mỗi bước thay vì gộp bước.
+
+# 1. QUY TẮC BẮT BUỘC — CHECKPOINT (đọc kỹ trước khi chạy skill)
+
+KHÔNG BAO GIỜ thực hiện quá 1 Step (xem danh sách Step ở mục 3) trong 1 lượt trả lời.
+Sau khi hoàn thành xong nội dung của 1 Step, PHẢI dừng lại, in ra đúng dòng đánh dấu [DỪNG LẠI CHỜ XÁC NHẬN], rồi hỏi người dùng đúng dạng:
+
+"✅ Đã hoàn thành Step N: <tên step>. Bạn xác nhận nội dung này đã đúng chưa? Có cần chỉnh sửa gì trước khi mình sang Step N+1: <tên step tiếp theo> không?
+[DỪNG LẠI CHỜ XÁC NHẬN]"
+
+
+Dòng [DỪNG LẠI CHỜ XÁC NHẬN] phải xuất hiện ở cuối mỗi Step, không được bỏ qua dù nội dung step ngắn hay dài.
+Chỉ được sang Step N+1 khi người dùng xác nhận rõ ràng (ví dụ: "ok", "tiếp tục", "đúng rồi", "next").
+Nếu người dùng phản hồi yêu cầu sửa, ở lượt kế tiếp chỉ sửa lại Step N (không tự ý sang Step N+1).
+Nếu người dùng không phản hồi xác nhận mà hỏi việc khác, dừng ở Step hiện tại, không tự suy diễn tiếp.
+
+# 2. Input cần thu thập trước khi bắt đầu (Step 0)
+Trước khi vào Step 1, hỏi/xác nhận với người dùng:
+
+Tên & mã tính năng (ví dụ: FR-02 Login and account lockout)
+Đặc tả / mô tả nghiệp vụ của tính năng (đoạn text, link repo, hoặc file)
+Có ràng buộc nghiệp vụ nào đã biết trước không (range số lượt đăng nhập sai, độ dài password, v.v.)
+Tên AI tool đang dùng — để ghi vào AI Audit Log ở Step cuối
+
+Nếu người dùng chưa cung cấp đặc tả, yêu cầu họ cung cấp trước khi chạy Step 1 (đây là ngoại lệ duy nhất được phép hỏi trước khi thực thi, vì thiếu input thì không thể phân tích).
+[DỪNG LẠI CHỜ XÁC NHẬN]
+# 3. Danh sách Step (mỗi Step = đúng 1 lượt trả lời)
+## Step 1 — Phân tích nghiệp vụ (Business Analyst)
+
+Liệt kê toàn bộ Input và Output của tính năng.
+Liệt kê điều kiện / ràng buộc cho từng input (kiểu dữ liệu, range, format, enum, "must be" case, quan hệ giữa các field).
+Đề xuất thêm các ràng buộc/điều kiện hợp lý mà đặc tả có thể chưa nêu rõ (ví dụ: giới hạn ký tự username, case-sensitivity, khoảng thời gian lock account…), đánh dấu rõ đâu là ràng buộc lấy từ đặc tả gốc, đâu là ràng buộc tự suy luận thêm ([inferred]).
+Trình bày dưới dạng bảng, bắt buộc có cột giá trị mẫu cụ thể (không để trống, không viết "tuỳ ý"):
+Biến | Vai trò (Input/Output) | Kiểu dữ liệu | Ràng buộc/Range | Giá trị mẫu hợp lệ cụ thể | Nguồn (spec/inferred)
+Ví dụ cột "Giá trị mẫu hợp lệ cụ thể": với input username ràng buộc "6–20 ký tự alphanumeric" → ghi cụ thể nguyen_van_a01, không ghi chung chung "một chuỗi hợp lệ".
+[DỪNG LẠI CHỜ XÁC NHẬN]
+## Step 2 — Xác định Input & Output cho Domain Testing
+
+Thu gọn lại danh sách ở Step 1 thành các input/output sẽ dùng để phân lớp tương đương (loại bỏ input không ảnh hưởng tới logic test).
+Xác nhận input nào độc lập, input nào có quan hệ ràng buộc lẫn nhau (cần lưu ý khi chọn test case ở Step 4).
+Với các input giữ lại, chốt sẵn 1 bộ "giá trị nền" (baseline data) — một bộ dữ liệu hợp lệ đầy đủ, cụ thể cho toàn bộ field của tính năng (ví dụ: 1 tài khoản mẫu hoàn chỉnh: username, password, email...). Bộ baseline này sẽ được tái sử dụng ở Step 4/Step 6: khi 1 test case chỉ tập trung kiểm tra 1 field, các field còn lại lấy nguyên giá trị baseline (hợp lệ) thay vì để trống hoặc ghi "bất kỳ".
+
+[DỪNG LẠI CHỜ XÁC NHẬN]
+## Step 3 — Xác định Equivalence Classes (Valid/Invalid)
+Với từng input condition, áp dụng đúng guideline đã học:
+
+Range (VD "1 ≤ count ≤ 999") → 1 valid EC + 2 invalid EC (nhỏ hơn / lớn hơn).
+Tập giá trị rời rạc, mỗi giá trị được xử lý khác nhau (enum) → 1 valid EC/giá trị + 1 invalid EC chung.
+"Must be" case (VD "ký tự đầu phải là chữ") → 1 valid EC + 1 invalid EC.
+Nếu nghi ngờ các phần tử trong 1 EC không được xử lý giống nhau → tách nhỏ EC đó ra.
+Trình bày bảng, bắt buộc có cột giá trị đại diện cụ thể cho từng EC — đây là cột quan trọng nhất để tránh test data chung chung:
+EC ID | Input/Output | Điều kiện | Loại (Valid/Invalid) | Giá trị đại diện cụ thể | Mô tả
+Quy tắc bắt buộc cho cột "Giá trị đại diện cụ thể":
+
+Không được viết mô tả trừu tượng như "một giá trị không hợp lệ", "chuỗi bất kỳ", "số ngoài phạm vi" — phải điền con số/chuỗi thật, có thể copy-paste chạy ngay.
+Nếu EC là "không phải số nguyên" → ghi cụ thể ví dụ "abc" hoặc 12.5, không ghi chung "không phải số".
+Nếu EC là "vượt quá độ dài cho phép" → ghi rõ độ dài thực tế đã dùng, ví dụ nếu giới hạn là 20 ký tự thì ghi chuỗi 21 ký tự cụ thể (có thể viết "a" x 21 kèm chú thích số lượng ký tự).
+Nếu EC là giá trị rỗng/null → ghi rõ literal: "" (chuỗi rỗng), NULL, hoặc (không nhập gì) — không gộp chung với các loại invalid khác.
+Nếu EC là ký tự đặc biệt/không hợp lệ về định dạng → liệt kê rõ tập ký tự dùng để test, ví dụ "!@#$%^&*()".
+
+
+[DỪNG LẠI CHỜ XÁC NHẬN]
+## Step 4 — Test Case Report (Domain Testing)
+
+KHÔNG có giới hạn số lượng test case. Số lượng test case PHẢI bằng đúng 
+số equivalence class hợp lệ tìm được — không được gộp nhiều class vào 
+1 test case, không được bỏ sót class nào, và không được tự ý dừng sớm 
+vì lý do "đã đủ" hay "để tránh dài".
+
+
+Valid EC: gộp nhiều EC valid vào 1 test case cho tới khi tất cả valid EC được cover.
+Invalid EC: mỗi test case chỉ cover đúng 1 invalid EC.
+
+
+Xuất bảng Test Case Report đúng format bắt buộc của đề bài:
+
+Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested
+
+Quy tắc bắt buộc cho cột "Input Data" (test data) — áp dụng cho cả Step 4 và Step 6, đây là phần bắt buộc phải rõ ràng, không chung chung:
+
+Lấy đúng giá trị cụ thể đã chốt ở bảng EC (Step 3) / bảng biên (Step 5) cho field đang test — không tự bịa giá trị mới khác với bảng đã chốt.
+Input Data phải liệt kê đầy đủ tất cả field liên quan của tính năng cho 1 lần thực thi, không chỉ field đang là trọng tâm test. Các field không phải trọng tâm lấy nguyên giá trị baseline hợp lệ đã chốt ở Step 2 (ví dụ test biên độ dài password, thì username/email trong cùng test case vẫn phải có giá trị hợp lệ cụ thể, không để trống hoặc ghi "bất kỳ").
+Dùng thẻ <br> để tách các field trong cùng 1 ô, theo định dạng Tên field: giá trị, ví dụ:
+username: nguyen_van_a01<br>password: Abc@12345<br>email: test01@gmail.com
+Dữ liệu phải đúng định dạng thực tế của loại field (email dạng abc@domain.com, số điện thoại VN 10 số bắt đầu bằng 0, ngày dạng dd/mm/yyyy, v.v.) — không dùng placeholder kiểu <email>, <string>.
+Cấm dùng các cụm mơ hồ sau trong cột Input Data: "giá trị hợp lệ", "giá trị không hợp lệ", "một chuỗi bất kỳ", "số bất kỳ ngoài phạm vi", "dữ liệu ngẫu nhiên", "N/A" (trừ khi field đó thực sự không áp dụng cho tính năng).
+Nếu 2 test case khác nhau vô tình dùng cùng 1 bộ Input Data → phải rà soát lại, vì đây là dấu hiệu 2 EC/test case đang trùng lặp thật sự.
+
+Actual Result / Status / Defect ID để trống, ghi chú "cần người dùng thực thi thủ công hoặc chạy trên SUT rồi điền lại".
+
+[DỪNG LẠI CHỜ XÁC NHẬN]
+## Step 5 — BVA Thought Process
+
+Xác định các biên (Boundaries) dựa trên các dải giá trị đã có từ Step 1 (ràng buộc nghiệp vụ) và Step 3 (Equivalence Classes).
+Với mỗi biên, phân tích các giá trị cần test:
+
+Giá trị ngay dưới biên dưới (min − 1)
+Giá trị tại biên dưới (min)
+Giá trị ngay trên biên dưới (min + 1)
+Giá trị ngay dưới biên trên (max − 1)
+Giá trị tại biên trên (max)
+Giá trị ngay trên biên trên (max + 1)
+(kèm giá trị đặc biệt như 0, rỗng, null nếu áp dụng cho input đó).
+
+
+Giải thích vì sao các giá trị này được chọn, và xác nhận với người dùng cách tiếp cận: single-fault BVA (chỉ đẩy 1 input ra biên, các input khác giữ giá trị valid) hay worst-case BVA (nhiều input cùng ở biên) — hỏi người dùng nếu chưa rõ muốn dùng cách nào.
+Trình bày dưới dạng bảng, cột giá trị test phải là số/chuỗi thật, không phải công thức: Input | Biên (min/max) | Giá trị test (min-1, min, min+1, max-1, max, max+1) | Ghi chú
+
+[DỪNG LẠI CHỜ XÁC NHẬN]
+## Step 6 — Kết xuất Bảng Test Case BVA
+
+Xuất bảng Test Case BVA theo đúng cấu trúc bảng đã dùng ở Step 4 (Domain Testing Test Case Report):
+
+Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested
+
+Mỗi test case phải bám theo các giá trị biên đã xác định ở Step 5 (min-1, min, min+1, max-1, max, max+1) và đúng cách tiếp cận (single-fault/worst-case) đã chốt ở Step 5.
+Đối chiếu với bảng Test Case ở Step 4: nếu một test case BVA trùng (cùng input data / cùng mục tiêu kiểm thử) với test case Domain Testing đã có, không loại bỏ ngầm — vẫn liệt kê lại nhưng ghi chú rõ ở cột Description hoặc 1 cột phụ "Ghi chú trùng lặp": Trùng với TCxx (Domain Testing) — giữ lại vì đại diện giá trị biên.
+Actual Result / Status / Defect ID để trống, ghi chú người dùng cần tự thực thi trên SUT rồi điền lại.
+
+[DỪNG LẠI CHỜ XÁC NHẬN]
+# Step 7 — AI Audit Log Entry
+
+Tổng hợp lại toàn bộ nội dung đã tạo ra trong phiên (Step 1 → Step 6) và tạo ra thực sự 2 file Markdown (không chỉ hiển thị trong khung chat) cho feature đang xử lý, mã feature = FXX (ví dụ FR02):
+File 1 — FXX_report.md (Báo cáo nội dung kiểm thử), phải theo đúng khung sau:
+# BÁO CÁO KIỂM THỬ - <Tên feature> (FXX)
+
+## I. DOMAIN TESTING
+
+### 1. DETAILED STEP-BY-STEP DOMAIN ANALYSIS
+(Chèn toàn bộ phần giải trình tư duy phân tích các miền tương đương Hợp lệ/Không hợp lệ — lấy nguyên nội dung đã chốt ở Step 1 và Step 3, viết chi tiết, mạch lạc bằng tiếng Việt, không tóm tắt qua loa)
+
+### 2. DOMAIN TEST CASES TABLE
+(Chèn bảng test case đầy đủ từ Step 4 — tối thiểu 8–12 kịch bản. Trong các ô Test Steps/Expected Result có nhiều dòng, dùng thẻ `<br>` để xuống dòng thay vì tạo dòng bảng mới)
+
+## II. BOUNDARY VALUE ANALYSIS (BVA)
+
+### 1. DETAILED STEP-BY-STEP BOUNDARY ANALYSIS
+(Chèn toàn bộ phần giải trình tư duy phân tích toán học các điểm biên Boundary, Boundary−1, Boundary+1 — lấy nguyên nội dung đã chốt ở Step 5, viết chi tiết bằng tiếng Việt)
+
+### 2. BOUNDARY TEST CASES TABLE
+(Chèn bảng test case biên đầy đủ từ Step 6 — tối thiểu 6–9 kịch bản, cùng quy tắc dùng thẻ `<br>` như trên)
+Yêu cầu bắt buộc cho File 1:
+
+Nếu số test case ở Step 4 chưa đủ 8–12 kịch bản, hoặc Step 6 chưa đủ 6–9 kịch bản, phải quay lại bổ sung trước khi xuất file (báo cho người dùng biết đang bổ sung thêm bao nhiêu case và vì sao).
+Giữ nguyên cấu trúc cột bảng đã dùng ở Step 4/Step 6; chỉ được thêm <br> bên trong ô, không đổi số cột.
+Không được rút gọn phần giải trình tư duy (mục "1.") thành gạch đầu dòng sơ sài — đây là phần thể hiện năng lực phân tích, cần viết như một bài giải trình thực sự.
+
+File 2 — FRXX_AI_Audit_Log.md (AI Audit Report), phải theo đúng khung sau:
+# AI AUDIT REPORT (DỮ LIỆU KIỂM TOÁN HỆ THỐNG)
+
+### AI tool name
+* <Tên model/AI tool đang thực thi skill này>
+
+### Date and time
+* <Ngày giờ chạy thực tế của phiên làm việc>
+
+### Prompt
+* **System Core Blueprint (Full Verbatim Content):**
+  <Chèn nguyên văn toàn bộ nội dung file SKILL.md này — từ mục "0. Vai trò (Role definition)" đến hết — làm bằng chứng kiểm toán đầy đủ, không tóm tắt>
+* **Input Feature Specification Used:**
+  <Chèn nguyên văn toàn bộ đặc tả thô ban đầu mà người dùng đã cung cấp ở Step 0>
+
+### The AI output
+<Chèn toàn bộ nội dung đã sinh ra từ Step 1 đến Step 6. Đây phải là bản dán đầy đủ (full copy), KHÔNG được viết dưới dạng link sang file khác (kể cả FXX_report.md), vì audit log cần là bằng chứng độc lập, tự đầy đủ.>
+Yêu cầu bắt buộc cho File 2:
+
+Không rút gọn, không paraphrase lại nội dung Step 1–6 khi dán vào "The AI output". Không rút gọn, không paraphrase lại nội dung Step 1–6 khi dán vào "The AI output", dán nguyên văn những gì đã được người dùng xác nhận qua các checkpoint.
+Không chèn link nội bộ trỏ sang FXX_report.md hoặc bất kỳ file nào khác trong mục này.
+4. Ghi chú áp dụng cho nhiều feature (Pool A–D)
+Khi người dùng có nhiều feature cần làm (VD 4 feature ở 4 pool), chạy toàn bộ Step 0–8 riêng cho từng feature, không trộn nhiều feature vào cùng 1 Step. Gợi ý người dùng tạo 1 Git commit sau mỗi Step (theo yêu cầu "Git Commit Log" của đề) — Claude có thể gợi ý nội dung commit message ngắn gọn tương ứng (VD: test(FR-02): add equivalence classes for login lockout) nhưng không tự động chạy git thay người dùng trừ khi được yêu cầu rõ.
+```
+
+* **Input Feature Specification Used:**
+
+```
+FR-06: Xem chi tiết sản phẩm phân hệ mobile
+
+* Hiển thị đầy đủ: Ảnh lớn, Tên, Giá, Mô tả, Danh mục.
+* Có ô nhập Số lượng (chỉ nhận số nguyên dương, tối thiểu là 1).
+* Nút Thêm vào giỏ hàng — sau khi bấm hiển thị phản hồi trực quan (toast notification hoặc badge cập nhật).
+
+[Kèm theo hình ảnh minh họa giao diện mobile: màn hình chi tiết sản phẩm mẫu "iPhone 15 Pro Max", giá "30,000,000 đ" (chữ đỏ), mô tả "Điện thoại cao cấp của Apple", khung ảnh sản phẩm placeholder ghi "iPhone 15", ô nhập "Số lượng:" với giá trị mặc định "1", và nút màu xanh lá "Thêm vào giỏ hàng".]
+```
+
+### The AI output
+
+**[Step 0 — Xác nhận Input] (thực hiện qua 3 lượt hỏi-đáp)**
+
+Lượt 1 — Claude xác nhận:
+- Tên & mã tính năng: FR-06 — Xem chi tiết sản phẩm (phân hệ mobile)
+- Đặc tả tổng hợp từ text + ảnh minh họa (như nêu ở mục "Input Feature Specification Used" phía trên)
+- Ràng buộc đã biết: Số lượng kiểu số nguyên dương, min = 1; chưa rõ max và case hết hàng
+- Hỏi tên AI tool
+
+Người dùng trả lời: "Claude Sonnet 5"
+
+Lượt 2 — Claude hỏi làm rõ thêm 2 điểm:
+1. Giá trị tối đa (max) của ô Số lượng: (a) không cap, theo tồn kho; (b) có cap cứng cố định; (c) để Claude tự đề xuất [inferred]
+2. Trường hợp sản phẩm hết hàng/ngừng kinh doanh xử lý thế nào: (a) disable nút + báo "Hết hàng"; (b) vẫn cho bấm nhưng báo lỗi submit; (c) để Claude tự suy luận [inferred]
+
+Người dùng trả lời: "ko có yêu cầu cụ thể"
+
+Lượt 3 — Claude chốt input:
+- Max Số lượng [inferred]: 99
+- Case hết hàng [inferred]: disable ô Số lượng + disable nút "Thêm vào giỏ hàng", nhãn nút đổi thành "Hết hàng"
+- Bảng tổng hợp Input đã chốt:
+
+| Mục | Nội dung |
+|---|---|
+| Tên & mã tính năng | FR-06 – Xem chi tiết sản phẩm (mobile) |
+| Đặc tả | Hiển thị Ảnh lớn, Tên, Giá, Mô tả, Danh mục; ô Số lượng (số nguyên dương, min=1); nút Thêm vào giỏ hàng có phản hồi trực quan (toast/badge) |
+| Ràng buộc số lượng | min = 1, max = 99 [inferred], chỉ số nguyên dương |
+| Ràng buộc trạng thái sản phẩm | Còn hàng (mặc định) / Hết hàng [inferred] → ảnh hưởng đến trạng thái nút và ô số lượng |
+| AI tool | Claude Sonnet 5 |
+
+Người dùng xác nhận: "ok"
+
+---
+
+**Step 1 — Phân tích nghiệp vụ (Business Analyst)**
+
+## 1. Danh sách Input và Output của tính năng FR-06
+
+**Input:**
+- Sản phẩm được chọn để xem chi tiết (product_id — do người dùng chọn từ danh sách trước đó, không phải trường nhập tay trên màn hình này)
+- Số lượng (quantity) — người dùng nhập trước khi bấm "Thêm vào giỏ hàng"
+- Hành động bấm nút "Thêm vào giỏ hàng"
+
+**Output:**
+- Thông tin sản phẩm hiển thị: Ảnh lớn, Tên sản phẩm, Giá, Mô tả, Danh mục
+- Trạng thái ô Số lượng (enabled/disabled)
+- Trạng thái nút "Thêm vào giỏ hàng" (enabled/disabled, nhãn hiển thị)
+- Phản hồi trực quan sau khi thêm vào giỏ hàng (toast notification hoặc badge cập nhật số lượng giỏ hàng)
+
+## 2. Bảng điều kiện/ràng buộc cho từng input
+
+| Biến | Vai trò (Input/Output) | Kiểu dữ liệu | Ràng buộc/Range | Giá trị mẫu hợp lệ cụ thể | Nguồn (spec/inferred) |
+|---|---|---|---|---|---|
+| product_status | Input (điều kiện nghiệp vụ) | Enum | "Còn hàng" / "Hết hàng" | "Còn hàng" | [inferred] |
+| product_name | Output | String | Không rỗng, hiển thị đúng tên sản phẩm | "iPhone 15 Pro Max" | spec (từ ảnh minh họa) |
+| product_price | Output | Number (VNĐ) | > 0, định dạng có dấu phân cách hàng nghìn | 30.000.000 đ | spec (từ ảnh minh họa) |
+| product_description | Output | String | Có thể rỗng hoặc có nội dung mô tả | "Điện thoại cao cấp của Apple" | spec (từ ảnh minh họa) |
+| product_category | Output | String/Enum | Thuộc danh mục có sẵn trong hệ thống | "Điện thoại" | [inferred] — đề bài yêu cầu hiển thị Danh mục nhưng ảnh minh họa không thể hiện rõ trường này |
+| product_image | Output | Image | Ảnh hợp lệ hoặc ảnh placeholder nếu thiếu | URL ảnh: https://cdn.shop.vn/products/iphone15promax.jpg | spec + [inferred] cho case placeholder |
+| quantity | Input | Integer | Số nguyên dương, min = 1, max = 99 | 1 | spec (min=1) + [inferred] (max=99, kiểu integer, ràng buộc dương) |
+| quantity_field_state | Output | Boolean | Enabled nếu product_status = "Còn hàng"; Disabled nếu "Hết hàng" | Enabled | [inferred] |
+| add_to_cart_button_state | Output | Boolean/Enum | Enabled + nhãn "Thêm vào giỏ hàng" nếu còn hàng; Disabled + nhãn "Hết hàng" nếu hết hàng | Enabled, nhãn "Thêm vào giỏ hàng" | spec (nút) + [inferred] (case hết hàng) |
+| feedback_after_add | Output | String/UI element | Toast notification hoặc badge cập nhật, hiển thị trong thời gian ngắn (VD 2–3 giây) | Toast: "Đã thêm 1 iPhone 15 Pro Max vào giỏ hàng" | spec (yêu cầu có phản hồi) + [inferred] (nội dung, thời gian hiển thị cụ thể) |
+
+## 3. Ghi chú về quan hệ giữa các input
+
+- quantity chỉ có ý nghĩa và chỉ được nhập/submit khi product_status = "Còn hàng" → có quan hệ ràng buộc lẫn nhau giữa product_status và quantity / add_to_cart_button_state (sẽ lưu ý kỹ ở Step 2 và Step 4 khi chọn test case, tránh test case vô nghĩa như "nhập số lượng trên sản phẩm hết hàng mà nút vẫn active").
+- quantity là input độc lập về mặt kiểu dữ liệu/range so với product_name, product_price, product_description, product_category (các trường này chỉ là output hiển thị tĩnh, không có logic phân lớp tương đương phức tạp).
+
+Người dùng xác nhận: "ok"
+
+---
+
+**Step 2 — Xác định Input & Output cho Domain Testing**
+
+## 1. Thu gọn danh sách Input/Output dùng để phân lớp tương đương
+
+Từ bảng Step 1, các trường product_name, product_price, product_description, product_category, product_image là output hiển thị tĩnh — không có logic xử lý phân nhánh (không range, không "must-be" case phức tạp), nên không đưa vào phân lớp tương đương (EC). Chúng chỉ được dùng làm dữ liệu baseline hiển thị.
+
+Các input/điều kiện được giữ lại để phân lớp tương đương (EC) ở Step 3:
+
+| STT | Tên | Lý do giữ lại |
+|---|---|---|
+| 1 | product_status (Còn hàng / Hết hàng) | Là điều kiện enum ảnh hưởng trực tiếp đến hành vi hệ thống (state của nút, ô số lượng) |
+| 2 | quantity | Có range rõ ràng (1–99, số nguyên dương) → cần EC và BVA |
+
+## 2. Quan hệ giữa các input
+
+- product_status và quantity có quan hệ ràng buộc lẫn nhau: khi product_status = "Hết hàng", quantity không thể nhập/submit hợp lệ (ô bị disable) → đây không phải là 1 EC độc lập của quantity, mà là 1 EC riêng của product_status ảnh hưởng đến toàn bộ luồng. Sẽ lưu ý ở Step 4: không tạo test case kiểu "nhập quantity=5 khi hết hàng" như một EC bình thường của quantity, mà tách thành 1 test case riêng thuộc nhóm product_status.
+- quantity khi product_status = "Còn hàng" là độc lập, không phụ thuộc vào các output tĩnh khác (tên, giá, mô tả, danh mục).
+
+## 3. Bộ giá trị nền (Baseline data)
+
+Baseline sẽ được tái sử dụng ở Step 4/Step 6 — khi test case chỉ tập trung vào 1 field, các field còn lại lấy nguyên baseline:
+
+```
+product_id: SP001
+product_name: iPhone 15 Pro Max
+product_price: 30.000.000 đ
+product_description: Điện thoại cao cấp của Apple
+product_category: Điện thoại
+product_image: https://cdn.shop.vn/products/iphone15promax.jpg
+product_status: Còn hàng
+quantity: 1
+```
+
+Người dùng xác nhận: "ok"
+
+---
+
+**Step 3 — Xác định Equivalence Classes (Valid/Invalid)**
+
+## 1. Input: quantity (Số lượng)
+
+Áp dụng guideline: Range "1 ≤ quantity ≤ 99" → 1 valid EC + 2 invalid EC (nhỏ hơn/lớn hơn); "must be integer" → 1 valid EC + 1 invalid EC; ngoài ra tách riêng EC cho rỗng/null và ký tự đặc biệt (không gộp chung với invalid khác).
+
+## 2. Input: product_status (Trạng thái sản phẩm)
+
+Enum, mỗi giá trị được xử lý khác nhau → 1 valid EC/giá trị; thêm 1 invalid EC cho trường hợp dữ liệu lỗi/không xác định.
+
+## 3. Bảng Equivalence Classes
+
+| EC ID | Input/Output | Điều kiện | Loại (Valid/Invalid) | Giá trị đại diện cụ thể | Mô tả |
+|---|---|---|---|---|---|
+| EC-STT-01 | product_status | Sản phẩm còn hàng | Valid | "Còn hàng" | Trạng thái mặc định, cho phép nhập số lượng và thêm vào giỏ hàng |
+| EC-STT-02 | product_status | Sản phẩm hết hàng | Valid | "Hết hàng" | Trạng thái hợp lệ của hệ thống nhưng disable ô Số lượng + nút Thêm vào giỏ hàng [inferred] |
+| EC-STT-03 | product_status | Dữ liệu trạng thái lỗi/không xác định | Invalid | NULL (giá trị trạng thái bị thiếu/null từ backend) | Trường hợp lỗi dữ liệu, hệ thống nên có xử lý mặc định an toàn (VD coi như hết hàng) [inferred] |
+| EC-QTY-01 | quantity | Trong khoảng hợp lệ 1–99, là số nguyên | Valid | 5 | Giá trị số lượng hợp lệ điển hình |
+| EC-QTY-02 | quantity | Nhỏ hơn giá trị min (< 1) | Invalid | 0 | Vi phạm ràng buộc min=1 |
+| EC-QTY-03 | quantity | Lớn hơn giá trị max (> 99) | Invalid | 100 | Vi phạm ràng buộc max=99 [inferred] |
+| EC-QTY-04 | quantity | Không phải số nguyên (ký tự chữ) | Invalid | "abc" | Sai kiểu dữ liệu, nhập chữ thay vì số |
+| EC-QTY-05 | quantity | Số thập phân (không phải số nguyên) | Invalid | 2.5 | Vi phạm ràng buộc "số nguyên" |
+| EC-QTY-06 | quantity | Rỗng / không nhập | Invalid | "" (chuỗi rỗng) | Người dùng không nhập gì vào ô Số lượng |
+| EC-QTY-07 | quantity | Ký tự đặc biệt | Invalid | "!@#$%" | Nhập ký tự đặc biệt không hợp lệ về định dạng |
+| EC-QTY-08 | quantity | Số âm | Invalid | -5 | Vi phạm ràng buộc số nguyên dương (gộp logic với EC-QTY-02 về mặt "nhỏ hơn min", nhưng giữ riêng vì đại diện case số âm rõ ràng, có thể xử lý lỗi khác biệt so với 0) |
+
+Người dùng xác nhận: "ok"
+
+---
+
+**Step 4 — Test Case Report (Domain Testing)**
+
+Tổng số Equivalence Class hợp lệ: 2 (EC-STT-01, EC-STT-02 — không gộp vì EC-STT-02 làm thay đổi hành vi toàn bộ màn hình, gộp chung với EC-QTY-01 sẽ vô nghĩa vì ô Số lượng bị disable). EC-QTY-01 (valid) được gộp cùng EC-STT-01 vì hai EC valid này không mâu thuẫn và có thể kiểm tra đồng thời trong 1 test case.
+
+→ Số test case Valid = 2 (TC01 cover EC-STT-01 + EC-QTY-01; TC02 cover EC-STT-02 riêng).
+→ Số test case Invalid = 8 (mỗi EC invalid 1 test case riêng: EC-STT-03, EC-QTY-02 → EC-QTY-08).
+→ Tổng: 10 test case.
+
+(Bảng Test Case Report đầy đủ — xem mục "2. DOMAIN TEST CASES TABLE" trong file FR06_report.md, đã được dán lại nguyên văn tại đây theo yêu cầu tự-đầy-đủ của Audit Log:)
+
+| Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested |
+|---|---|---|---|---|---|---|---|---|---|---|
+| TC_FR06_01 | Xem chi tiết & thêm vào giỏ hàng với sản phẩm còn hàng, số lượng hợp lệ (EC-STT-01 + EC-QTY-01) | Sản phẩm SP001 đang ở trạng thái "Còn hàng" | product_status: Còn hàng<br>quantity: 5<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Kiểm tra thông tin hiển thị<br>3. Nhập 5 vào ô Số lượng<br>4. Bấm nút "Thêm vào giỏ hàng" | Hiển thị đầy đủ Ảnh, Tên, Giá, Mô tả, Danh mục; ô Số lượng nhận giá trị 5; sau khi bấm nút, hệ thống hiển thị toast "Đã thêm 5 iPhone 15 Pro Max vào giỏ hàng" và badge giỏ hàng cập nhật +5 | | Chưa test | | | |
+| TC_FR06_02 | Xem chi tiết sản phẩm ở trạng thái hết hàng (EC-STT-02) | Sản phẩm SP001 đang ở trạng thái "Hết hàng" | product_status: Hết hàng<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Kiểm tra trạng thái ô Số lượng và nút | Ô Số lượng bị disable; nút "Thêm vào giỏ hàng" bị disable và hiển thị nhãn "Hết hàng" | | Chưa test | | | |
+| TC_FR06_03 | Trạng thái sản phẩm lỗi/không xác định (EC-STT-03) | Dữ liệu trạng thái sản phẩm từ hệ thống bị null | product_status: NULL<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết sản phẩm có product_status = NULL<br>2. Quan sát hành vi hệ thống | Hệ thống xử lý an toàn: coi như hết hàng, disable ô Số lượng và nút "Thêm vào giỏ hàng", không crash/lỗi hiển thị | | Chưa test | | | |
+| TC_FR06_04 | Nhập số lượng = 0 (EC-QTY-02) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 0<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập 0 vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị thông báo lỗi "Số lượng phải lớn hơn hoặc bằng 1"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_05 | Nhập số lượng = 100, vượt max (EC-QTY-03) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 100<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập 100 vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị thông báo lỗi "Số lượng tối đa cho phép là 99"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_06 | Nhập ký tự chữ vào ô Số lượng (EC-QTY-04) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: "abc"<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập "abc" vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối nhập/hiển thị lỗi "Vui lòng nhập số nguyên hợp lệ"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_07 | Nhập số thập phân vào ô Số lượng (EC-QTY-05) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 2.5<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập 2.5 vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị lỗi "Số lượng phải là số nguyên"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_08 | Không nhập số lượng (ô rỗng) (EC-QTY-06) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: "" (rỗng)<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Để trống ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống hiển thị lỗi "Vui lòng nhập số lượng"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_09 | Nhập ký tự đặc biệt vào ô Số lượng (EC-QTY-07) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: "!@#$%"<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập "!@#$%" vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối nhập/hiển thị lỗi "Số lượng không hợp lệ"; không thêm vào giỏ hàng | | Chưa test | | | |
+| TC_FR06_10 | Nhập số âm vào ô Số lượng (EC-QTY-08) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: -5<br>product_name: iPhone 15 Pro Max | 1. Mở màn hình chi tiết sản phẩm SP001<br>2. Nhập -5 vào ô Số lượng<br>3. Bấm nút "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị lỗi "Số lượng phải là số nguyên dương"; không thêm vào giỏ hàng | | Chưa test | | | |
+
+Người dùng xác nhận: "ok"
+
+---
+
+**Step 5 — BVA Thought Process**
+
+## 1. Xác định các biên (Boundaries)
+
+Dựa trên ràng buộc đã chốt ở Step 1/Step 3: quantity có range 1 ≤ quantity ≤ 99 (min = 1, max = 99). Đây là input số nguyên duy nhất có range rõ ràng trong FR-06, nên là input được áp dụng BVA. product_status là enum (không có "biên" số học) nên không áp dụng BVA cho input này.
+
+## 2. Phân tích các giá trị cần test quanh biên
+
+Biên dưới (min = 1): min−1 = 0 (invalid), min = 1 (valid), min+1 = 2 (valid).
+Biên trên (max = 99): max−1 = 98 (valid), max = 99 (valid), max+1 = 100 (invalid).
+Giá trị đặc biệt liên quan: 0 và "" đã cover ở EC, không lặp lại thành boundary riêng.
+
+## 3. Giải thích lý do chọn các giá trị này
+
+Các giá trị min−1, min, min+1, max−1, max, max+1 được chọn vì theo lý thuyết BVA, lỗi lập trình (off-by-one error) thường xảy ra ngay tại các điểm biên của điều kiện so sánh. Kiểm tra riêng từng điểm này giúp phát hiện các lỗi mà Equivalence Partitioning không phát hiện được.
+
+## 4. Xác nhận cách tiếp cận BVA
+
+Vì FR-06 chỉ có 1 input duy nhất có biên số học (quantity), single-fault BVA và worst-case BVA cho ra cùng một tập test case. Đề xuất áp dụng single-fault BVA.
+
+## 5. Bảng giá trị biên
+
+| Input | Biên (min/max) | Giá trị test | Ghi chú |
+|---|---|---|---|
+| quantity | min − 1 | 0 | Invalid — dưới ngưỡng tối thiểu |
+| quantity | min | 1 | Valid — ngưỡng tối thiểu |
+| quantity | min + 1 | 2 | Valid — ngay trên ngưỡng tối thiểu |
+| quantity | max − 1 | 98 | Valid — ngay dưới ngưỡng tối đa |
+| quantity | max | 99 | Valid — ngưỡng tối đa |
+| quantity | max + 1 | 100 | Invalid — vượt ngưỡng tối đa |
+
+Người dùng xác nhận: "ok"
+
+---
+
+**Step 6 — Kết xuất Bảng Test Case BVA**
+
+Áp dụng single-fault BVA: chỉ đẩy quantity ra các điểm biên (0, 1, 2, 98, 99, 100), các input khác giữ nguyên baseline.
+
+| Test Case ID | Description | Pre-condition | Input Data | Test Steps | Expected Result | Actual Result | Status | Defect ID | Tested By | Date Tested | Ghi chú trùng lặp |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| TC_BVA_FR06_01 | Nhập số lượng tại biên dưới − 1 (min−1 = 0) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 0<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 0 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị lỗi "Số lượng phải lớn hơn hoặc bằng 1"; không thêm vào giỏ hàng | | Chưa test | | | | Trùng với TC_FR06_04 (Domain Testing) — giữ lại vì đại diện giá trị biên min−1 |
+| TC_BVA_FR06_02 | Nhập số lượng tại biên dưới (min = 1) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 1<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 1 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống chấp nhận, thêm 1 sản phẩm vào giỏ hàng, hiển thị toast "Đã thêm 1 iPhone 15 Pro Max vào giỏ hàng" | | Chưa test | | | | Không trùng — giá trị biên min chưa được test riêng ở Domain Testing |
+| TC_BVA_FR06_03 | Nhập số lượng ngay trên biên dưới (min+1 = 2) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 2<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 2 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống chấp nhận, thêm 2 sản phẩm vào giỏ hàng, hiển thị toast tương ứng | | Chưa test | | | | Không trùng |
+| TC_BVA_FR06_04 | Nhập số lượng ngay dưới biên trên (max−1 = 98) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 98<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 98 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống chấp nhận, thêm 98 sản phẩm vào giỏ hàng, hiển thị toast tương ứng | | Chưa test | | | | Không trùng |
+| TC_BVA_FR06_05 | Nhập số lượng tại biên trên (max = 99) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 99<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 99 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống chấp nhận, thêm 99 sản phẩm vào giỏ hàng, hiển thị toast tương ứng | | Chưa test | | | | Không trùng — giá trị biên max chưa được test riêng ở Domain Testing |
+| TC_BVA_FR06_06 | Nhập số lượng vượt biên trên (max+1 = 100) | Sản phẩm SP001 đang "Còn hàng" | product_status: Còn hàng<br>quantity: 100<br>product_name: iPhone 15 Pro Max<br>product_price: 30.000.000 đ | 1. Mở màn hình chi tiết SP001<br>2. Nhập 100 vào ô Số lượng<br>3. Bấm "Thêm vào giỏ hàng" | Hệ thống từ chối, hiển thị lỗi "Số lượng tối đa cho phép là 99"; không thêm vào giỏ hàng | | Chưa test | | | | Trùng với TC_FR06_05 (Domain Testing) — giữ lại vì đại diện giá trị biên max+1 |
+
+Người dùng xác nhận: "ok"
