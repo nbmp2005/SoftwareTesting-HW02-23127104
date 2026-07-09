@@ -1243,7 +1243,6 @@ Step 6 — Kết xuất Bảng Test Case BVA
 Mình giữ đúng các giá trị biên đã chốt ở Step 5 và dùng 9 test case để phủ các điểm biên quan trọng nhất của coupon CRUD: `discount_value`, `min_order_amount`, `max_uses_per_user`, và `expired_at`. Phần Actual Result, Status, Defect ID để trống theo đúng quy tắc, vì người dùng sẽ thực thi trên SUT rồi điền sau.
 
 ## Prompt 8 
-# AI AUDIT REPORT (DỮ LIỆU KIỂM TOÁN HỆ THỐNG)
 
 ### AI tool name
 * GPT-5.4 mini
